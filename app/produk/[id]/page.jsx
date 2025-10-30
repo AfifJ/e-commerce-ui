@@ -60,7 +60,7 @@ export default function ProductDetailPage({ params }) {
         </div>
 
         {/* Bundle Products Section */}
-        <BundleProducts product={product} />
+        {/* <BundleProducts product={product} /> */}
 
         {/* Product Tabs Section */}
         <ProductTabs product={product} />

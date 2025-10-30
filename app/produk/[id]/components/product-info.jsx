@@ -16,8 +16,10 @@ import {
   CreditCard,
   Check,
   ChevronDown,
-  MapPin
+  MapPin,
+  Store
 } from "lucide-react";
+import VendorCard from "./vendor-card";
 
 export default function ProductInfo({ product }) {
   const [quantity, setQuantity] = useState(1);
@@ -312,6 +314,11 @@ export default function ProductInfo({ product }) {
           <span>Stok tersedia • Dikirim dari Jakarta</span>
         </div>
       </div>
+
+      <Separator />
+
+      {/* Vendor Information */}
+      {product.vendorId && <VendorCard vendorId={product.vendorId} />}
 
       {/* Trust Badges */}
       <div className="grid grid-cols-2 gap-4 text-center">

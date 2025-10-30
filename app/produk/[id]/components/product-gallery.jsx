@@ -22,8 +22,6 @@ export default function ProductGallery({ product }) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [isHighResLoaded, setIsHighResLoaded] = useState({});
-  const [isLoupeActive, setIsLoupeActive] = useState(false);
-  const [loupePosition, setLoupePosition] = useState({ x: 0, y: 0 });
 
   // Refs untuk DOM manipulation
   const imageContainerRef = useRef(null);
@@ -54,22 +52,7 @@ export default function ProductGallery({ product }) {
   // Format zoom level untuk display
   const formatZoomPercentage = (level) => `${Math.round(level * 100)}%`;
 
-  // Handle hover zoom dengan loupe
-  const handleMouseMove = useCallback((e) => {
-    if (!imageContainerRef.current) return;
-
-    const rect = imageContainerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setLoupePosition({ x, y });
-    setIsLoupeActive(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsLoupeActive(false);
-  }, []);
-
+  
   // Handle lightbox
   const openLightbox = useCallback(() => {
     setIsLightboxOpen(true);
@@ -114,10 +97,7 @@ export default function ProductGallery({ product }) {
     setDragPosition({ x: 0, y: 0 });
   }, []);
 
-  const handleZoomLevelChange = useCallback((level) => {
-    setZoomLevel(level);
-  }, []);
-
+  
   // Image navigation
   const navigateImage = useCallback((direction) => {
     setSelectedImage(prev => {
@@ -303,12 +283,10 @@ export default function ProductGallery({ product }) {
 
   return (
     <div className="space-y-4">
-      {/* Main Image dengan Hover Zoom */}
+      {/* Main Image */}
       <div
         ref={imageContainerRef}
         className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden group cursor-zoom-in select-none"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         onClick={openLightbox}
       >
         <Image
@@ -319,26 +297,6 @@ export default function ProductGallery({ product }) {
           sizes="(max-width: 768px) 100vw, 50vw"
           priority={selectedImage === 0}
         />
-
-        {/* Loupe (Kaca Pembesar) - Desktop Hover Zoom */}
-        {isLoupeActive && (
-          <div
-            className={`
-              absolute pointer-events-none z-20 border-2 border-white shadow-2xl rounded-full overflow-hidden
-              gpu-accelerated loupe-enter
-            `}
-            style={{
-              width: '150px',
-              height: '150px',
-              left: `${loupePosition.x - 75}px`,
-              top: `${loupePosition.y - 75}px`,
-              backgroundImage: `url(${productImages[selectedImage]})`,
-              backgroundPosition: `${-loupePosition.x * 2 + 75}px ${-loupePosition.y * 2 + 75}px`,
-              backgroundSize: '200%',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-        )}
 
         {/* Product Badge */}
         {product.badge && (

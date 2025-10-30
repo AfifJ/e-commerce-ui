@@ -52,6 +52,66 @@ export const categories = [
   }
 ];
 
+// Data vendor
+export const vendors = [
+  {
+    id: 1,
+    name: "TechStore Official",
+    logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=60&h=60&fit=crop&crop=center",
+    rating: 4.9,
+    totalReviews: 1250,
+    location: "Jakarta Pusat",
+    joinDate: "2020-01-15",
+    totalProducts: 156,
+    responseRate: 98,
+    responseTime: "±1 jam",
+    isVerified: true,
+    description: "Toko elektronik terpercaya dengan produk original dan garansi resmi"
+  },
+  {
+    id: 2,
+    name: "Fashion Hub",
+    logo: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=60&h=60&fit=crop&crop=center",
+    rating: 4.7,
+    totalReviews: 890,
+    location: "Bandung",
+    joinDate: "2019-06-20",
+    totalProducts: 342,
+    responseRate: 95,
+    responseTime: "±2 jam",
+    isVerified: true,
+    description: "Toko fashion dengan koleksi terkini dan kualitas terbaik"
+  },
+  {
+    id: 3,
+    name: "Sports Pro",
+    logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=60&h=60&fit=crop&crop=center",
+    rating: 4.8,
+    totalReviews: 567,
+    location: "Surabaya",
+    joinDate: "2021-03-10",
+    totalProducts: 89,
+    responseRate: 92,
+    responseTime: "±3 jam",
+    isVerified: false,
+    description: "Specialist perlengkapan olahraga professional"
+  },
+  {
+    id: 4,
+    name: "Beauty Care Store",
+    logo: "https://images.unsplash.com/photo-1556228720-195a672e8a04?w=60&h=60&fit=crop&crop=center",
+    rating: 4.9,
+    totalReviews: 2340,
+    location: "Jakarta Utara",
+    joinDate: "2018-11-05",
+    totalProducts: 278,
+    responseRate: 99,
+    responseTime: "±30 menit",
+    isVerified: true,
+    description: "Produk kecantikan original dengan izin BPOM"
+  }
+];
+
 // Data produk
 export const products = [
   // Featured Products
@@ -65,6 +125,7 @@ export const products = [
     rating: 4.8,
     reviews: 245,
     badge: "HOT",
+    vendorId: 1,
     description: "Smartphone flagship dengan kamera terbaik"
   },
   {
@@ -77,6 +138,7 @@ export const products = [
     rating: 4.6,
     reviews: 89,
     badge: "DISKON",
+    vendorId: 2,
     description: "Tas kulit asli dengan desain elegan"
   },
   {
@@ -89,6 +151,7 @@ export const products = [
     rating: 4.7,
     reviews: 156,
     badge: "BARU",
+    vendorId: 3,
     description: "Sepatu lari profesional dengan teknologi terbaru"
   },
   {
@@ -101,6 +164,7 @@ export const products = [
     rating: 4.9,
     reviews: 312,
     badge: "BESTSELLER",
+    vendorId: 4,
     description: "Set perawatan wajah lengkap"
   },
   // Trending Products

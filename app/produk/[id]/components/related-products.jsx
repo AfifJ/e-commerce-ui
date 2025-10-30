@@ -1,7 +1,7 @@
 "use client";
 
 import { products } from "@/data/mock-data";
-import ProductCard from "@/app/home/components/product-card";
+import ProductCard from "@/components/shared/product-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye, Heart } from "lucide-react";
 

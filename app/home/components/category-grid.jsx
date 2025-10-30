@@ -4,6 +4,7 @@ import { categories } from "@/data/mock-data";
 import CategoryCard from "./category-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function CategoryGrid() {
   // Display first 6 categories on homepage
@@ -22,10 +23,12 @@ export default function CategoryGrid() {
               Temukan produk yang sesuai dengan kebutuhan Anda
             </p>
           </div>
-          <Button variant="outline" className="hidden md:flex items-center gap-2">
-            Lihat Semua Kategori
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <Link href="/kategori">
+            <Button variant="outline" className="hidden md:flex items-center gap-2">
+              Lihat Semua Kategori
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
 
         {/* Category Grid */}
@@ -37,9 +40,11 @@ export default function CategoryGrid() {
 
         {/* Mobile View All Button */}
         <div className="mt-6 md:hidden">
-          <Button variant="outline" className="w-full">
-            Lihat Semua Kategori
-          </Button>
+          <Link href="/kategori">
+            <Button variant="outline" className="w-full">
+              Lihat Semua Kategori
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
