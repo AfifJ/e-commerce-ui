@@ -353,3 +353,379 @@ export const shippingPartners = [
   { name: "Tiki", logo: "Package" },
   { name: "GoSend", logo: "Truck" }
 ];
+
+// Vouchers data for cart functionality
+export const vouchers = [
+  {
+    id: "DISKON10",
+    code: "DISKON10",
+    type: "percentage",
+    value: 10,
+    description: "Diskon 10% untuk pembelian minimal Rp 100.000",
+    minPurchase: 100000,
+    maxDiscount: 50000,
+    isActive: true,
+    expiryDate: "2024-12-31"
+  },
+  {
+    id: "GRATISONGKIR",
+    code: "GRATISONGKIR",
+    type: "shipping",
+    value: 20000,
+    description: "Gratis ongkir maksimal Rp 20.000",
+    minPurchase: 50000,
+    maxDiscount: 20000,
+    isActive: true,
+    expiryDate: "2024-12-15"
+  },
+  {
+    id: "CASHBACK25",
+    code: "CASHBACK25",
+    type: "fixed",
+    value: 25000,
+    description: "Cashback Rp 25.000 untuk pembelian minimal Rp 200.000",
+    minPurchase: 200000,
+    maxDiscount: 25000,
+    isActive: true,
+    expiryDate: "2024-11-30"
+  }
+];
+
+// Shipping cost estimator data
+export const shippingCosts = {
+  jakarta: 15000,
+  bandung: 20000,
+  surabaya: 25000,
+  yogyakarta: 20000,
+  medan: 30000,
+  semarang: 22000,
+  makassar: 35000,
+  palembang: 28000,
+  bogor: 18000,
+  tangerang: 15000,
+  depok: 15000,
+  bekasi: 18000
+};
+
+// Mock function to get shipping cost by city
+export function getShippingCost(city) {
+  return shippingCosts[city.toLowerCase()] || 25000;
+}
+
+// Mock function to validate voucher
+export function validateVoucher(code, subtotal) {
+  const voucher = vouchers.find(v => v.code === code.toUpperCase());
+
+  if (!voucher) {
+    return { valid: false, message: "Kode voucher tidak valid" };
+  }
+
+  if (!voucher.isActive) {
+    return { valid: false, message: "Voucher sudah tidak aktif" };
+  }
+
+  if (subtotal < voucher.minPurchase) {
+    return {
+      valid: false,
+      message: `Minimal pembelian Rp ${voucher.minPurchase.toLocaleString('id-ID')} untuk menggunakan voucher ini`
+    };
+  }
+
+  return { valid: true, voucher };
+}
+
+// Mock function to calculate discount
+export function calculateDiscount(voucher, subtotal) {
+  let discount = 0;
+
+  switch (voucher.type) {
+    case 'percentage':
+      discount = subtotal * (voucher.value / 100);
+      if (voucher.maxDiscount && discount > voucher.maxDiscount) {
+        discount = voucher.maxDiscount;
+      }
+      break;
+    case 'fixed':
+      discount = voucher.value;
+      break;
+    case 'shipping':
+      discount = Math.min(voucher.value, getShippingCost('jakarta')); // Mock shipping cost
+      break;
+  }
+
+  return discount;
+}
+
+// Wishlist products data
+export const wishlistProducts = [
+  {
+    id: 101,
+    name: "iPhone 15 Pro Max 256GB",
+    description: "Smartphone flagship dengan A17 Pro chip dan titanium design",
+    price: 18499000,
+    originalPrice: 19999000,
+    image: "https://images.unsplash.com/photo-1592286115803-a1c3b552ee43?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.8,
+    reviews: 1243,
+    stock: 15,
+    vendor: "Apple Store",
+    vendorId: "apple-store",
+    discount: 8,
+    isNew: true,
+    isBestseller: true,
+    createdAt: "2024-01-15"
+  },
+  {
+    id: 102,
+    name: "MacBook Air M2 13-inch",
+    description: "Laptop ultra-thin dengan M2 chip yang powerful",
+    price: 15999000,
+    originalPrice: 17999000,
+    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.9,
+    reviews: 892,
+    stock: 8,
+    vendor: "Apple Store",
+    vendorId: "apple-store",
+    discount: 11,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-10"
+  },
+  {
+    id: 103,
+    name: "Nike Air Max 270",
+    description: "Sepatu olahraga dengan Max Air cushioning",
+    price: 1599000,
+    originalPrice: 1899000,
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.6,
+    reviews: 2341,
+    stock: 25,
+    vendor: "Nike Official",
+    vendorId: "nike-official",
+    discount: 16,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-08"
+  },
+  {
+    id: 104,
+    name: "Sony WH-1000XM5",
+    description: "Wireless noise canceling headphones terbaik",
+    price: 4299000,
+    originalPrice: 4999000,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.7,
+    reviews: 1567,
+    stock: 12,
+    vendor: "Sony Indonesia",
+    vendorId: "sony-official",
+    discount: 14,
+    isNew: true,
+    isBestseller: false,
+    createdAt: "2024-01-20"
+  },
+  {
+    id: 105,
+    name: "Levi's 501 Original Jeans",
+    description: "Celana jeans ikonik dengan fit regular",
+    price: 899000,
+    originalPrice: 1099000,
+    image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.5,
+    reviews: 892,
+    stock: 18,
+    vendor: "Levi's Store",
+    vendorId: "levis-official",
+    discount: 18,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-05"
+  },
+  {
+    id: 106,
+    name: "iPad Pro 12.9-inch M2",
+    description: "Tablet professional dengan M2 chip dan Liquid Retina XDR display",
+    price: 12499000,
+    originalPrice: 14499000,
+    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.8,
+    reviews: 623,
+    stock: 10,
+    vendor: "Apple Store",
+    vendorId: "apple-store",
+    discount: 14,
+    isNew: false,
+    isBestseller: false,
+    createdAt: "2024-01-12"
+  },
+  {
+    id: 107,
+    name: "Adidas Ultraboost 22",
+    description: "Sepatu lari dengan Boost midsole yang responsive",
+    price: 2299000,
+    originalPrice: 2599000,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.4,
+    reviews: 1782,
+    stock: 30,
+    vendor: "Adidas Official",
+    vendorId: "adidas-official",
+    discount: 12,
+    isNew: true,
+    isBestseller: true,
+    createdAt: "2024-01-18"
+  },
+  {
+    id: 108,
+    name: "Samsung Galaxy Watch 6",
+    description: "Smartwatch dengan body sensor dan sleep tracking",
+    price: 3299000,
+    originalPrice: 3999000,
+    image: "https://images.unsplash.com/photo-1523275335684-0cfed4f6a45d?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.3,
+    reviews: 543,
+    stock: 22,
+    vendor: "Samsung Store",
+    vendorId: "samsung-official",
+    discount: 18,
+    isNew: false,
+    isBestseller: false,
+    createdAt: "2024-01-03"
+  },
+  {
+    id: 109,
+    name: "H&M Oversized Hoodie",
+    description: "Hoodie nyaman dengan bahan katun organic",
+    price: 459000,
+    originalPrice: 599000,
+    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.2,
+    reviews: 234,
+    stock: 35,
+    vendor: "H&M Store",
+    vendorId: "hm-official",
+    discount: 23,
+    isNew: true,
+    isBestseller: false,
+    createdAt: "2024-01-25"
+  },
+  {
+    id: 110,
+    name: "Canon EOS R6 Mark II",
+    description: "Mirrorless camera dengan 24.2MP full-frame sensor",
+    price: 28999000,
+    originalPrice: 31999000,
+    image: "https://images.unsplash.com/photo-1516035069371-2981d14848aa?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.9,
+    reviews: 156,
+    stock: 5,
+    vendor: "Canon Store",
+    vendorId: "canon-official",
+    discount: 9,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-14"
+  },
+  {
+    id: 111,
+    name: "Uniqlo Airism T-Shirt",
+    description: "Kaos teknologi Airism yang adem dan nyaman",
+    price: 199000,
+    originalPrice: 299000,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.6,
+    reviews: 3421,
+    stock: 50,
+    vendor: "Uniqlo Store",
+    vendorId: "uniqlo-official",
+    discount: 33,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-07"
+  },
+  {
+    id: 112,
+    name: "JBL Flip 6",
+    description: "Portable Bluetooth speaker dengan waterproof design",
+    price: 1299000,
+    originalPrice: 1599000,
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.4,
+    reviews: 892,
+    stock: 28,
+    vendor: "JBL Store",
+    vendorId: "jbl-official",
+    discount: 19,
+    isNew: true,
+    isBestseller: false,
+    createdAt: "2024-01-22"
+  },
+  {
+    id: 113,
+    name: "Zara Trench Coat",
+    description: "Trench coat klasik dengan modern twist",
+    price: 1599000,
+    originalPrice: 1899000,
+    image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.7,
+    reviews: 267,
+    stock: 15,
+    vendor: "Zara Store",
+    vendorId: "zara-official",
+    discount: 16,
+    isNew: false,
+    isBestseller: false,
+    createdAt: "2024-01-11"
+  },
+  {
+    id: 114,
+    name: "Kindle Paperwhite",
+    description: "E-reader waterproof dengan 6.8 inch display",
+    price: 2199000,
+    originalPrice: 2499000,
+    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop&crop=center",
+    category: "Elektronik",
+    rating: 4.5,
+    reviews: 1234,
+    stock: 20,
+    vendor: "Amazon Store",
+    vendorId: "amazon-official",
+    discount: 12,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-16"
+  },
+  {
+    id: 115,
+    name: "Converse Chuck Taylor All Star",
+    description: "Sepatu sneakers ikonik yang timeless",
+    price: 899000,
+    originalPrice: 1099000,
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop&crop=center",
+    category: "Fashion",
+    rating: 4.3,
+    reviews: 3421,
+    stock: 45,
+    vendor: "Converse Store",
+    vendorId: "converse-official",
+    discount: 18,
+    isNew: false,
+    isBestseller: true,
+    createdAt: "2024-01-02"
+  }
+];

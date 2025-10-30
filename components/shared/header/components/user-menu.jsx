@@ -57,7 +57,7 @@ export default function UserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="flex items-center space-x-3 text-red-600">
+        <DropdownMenuItem className="flex items-center space-x-3">
           <LogOut className="w-4 h-4" />
           <span>Keluar</span>
         </DropdownMenuItem>

@@ -29,7 +29,7 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="py-12 bg-blue-600">
+    <section className="py-12 bg-primary">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center">
           {/* Icon */}
@@ -40,10 +40,10 @@ export default function Newsletter() {
           </div>
 
           {/* Content */}
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-primary-foreground mb-4">
             Dapatkan Penawaran Eksklusif!
           </h2>
-          <p className="text-blue-100 text-lg mb-8">
+          <p className="text-primary-foreground text-lg mb-8 opacity-90">
             Diskon 10% untuk pendaftar baru. Dapatkan info promo dan produk terbaru langsung di inbox Anda.
           </p>
 
@@ -61,7 +61,7 @@ export default function Newsletter() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 px-8 bg-white text-blue-600 hover:bg-gray-100 font-semibold"
+                className="h-12 px-8 bg-white text-primary hover:bg-gray-100 font-semibold"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -78,7 +78,7 @@ export default function Newsletter() {
               </Button>
             </form>
           ) : (
-            <div className="flex items-center justify-center gap-2 text-white">
+            <div className="flex items-center justify-center gap-2 text-primary-foreground">
               <CheckCircle className="w-6 h-6" />
               <span className="text-lg font-semibold">
                 Terima kasih! Email Anda telah terdaftar.
@@ -87,9 +87,9 @@ export default function Newsletter() {
           )}
 
           {/* Terms */}
-          <p className="text-blue-200 text-sm mt-4">
+          <p className="text-primary-foreground text-sm mt-4 opacity-70">
             Dengan berlangganan, Anda setuju dengan{" "}
-            <a href="/privacy" className="underline hover:text-white transition-colors">
+            <a href="/privacy" className="underline hover:text-primary-foreground transition-colors">
               Kebijakan Privasi
             </a>{" "}
             kami.

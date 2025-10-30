@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Menu, Zap, X, ChevronDown } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 // import SearchBar from "@/components/search-bar";
@@ -67,7 +68,9 @@ export default function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-1 hover:text-black">
-                    <span>Semua Kategori</span>
+                    <Link href="/kategori" className="flex items-center space-x-1">
+                      <span>Semua Kategori</span>
+                    </Link>
                     <ChevronDown className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -75,14 +78,19 @@ export default function Header() {
                   {categories.map((category) => {
                     const IconComponent = Icons[category.icon] || Icons.Package;
                     return (
-                      <DropdownMenuItem key={category.id} className="flex items-center space-x-3">
-                        <IconComponent className="w-4 h-4" />
-                        <div>
-                          <div className="font-medium">{category.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {category.subcategories.slice(0, 3).join(", ")}
+                      <DropdownMenuItem key={category.id} asChild>
+                        <Link
+                          href={`/kategori/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="flex items-center space-x-3 w-full"
+                        >
+                          <IconComponent className="w-4 h-4" />
+                          <div>
+                            <div className="font-medium">{category.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {category.subcategories.slice(0, 3).join(", ")}
+                            </div>
                           </div>
-                        </div>
+                        </Link>
                       </DropdownMenuItem>
                     );
                   })}
@@ -90,13 +98,16 @@ export default function Header() {
               </DropdownMenu>
 
               {/* Flash Sale Button */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 className="whitespace-nowrap text-red-600 hover:text-red-700 hover:bg-red-50 font-medium"
+                asChild
               >
-                <Zap className="w-4 h-4" />
-                Flash Sale
-              </Button>
+                <Link href="/flash-sale" className="flex items-center space-x-1">
+                  <Zap className="w-4 h-4" />
+                  Flash Sale
+                </Link>
+              </Button> */}
             </div>
 
             {/* Search bar - desktop only */}
@@ -110,10 +121,10 @@ export default function Header() {
               <UserMenu />
 
               {/* Wishlist */}
-              <WishlistButton itemCount={3} />
+              <WishlistButton itemCount={15} />
 
               {/* Cart */}
-              <CartButton itemCount={5} />
+              <CartButton itemCount={4} />
             </div>
           </div>
 
@@ -138,10 +149,10 @@ export default function Header() {
             {/* Mobile Action Buttons */}
             <div className="flex items-center space-x-2">
               {/* Wishlist */}
-              <WishlistButton itemCount={3} />
+              <WishlistButton itemCount={15} />
 
               {/* Cart */}
-              <CartButton itemCount={5} />
+              <CartButton itemCount={4} />
             </div>
           </div>
         </div>

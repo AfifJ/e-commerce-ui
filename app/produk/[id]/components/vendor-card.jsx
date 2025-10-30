@@ -54,7 +54,7 @@ export default function VendorCard({ vendorId }) {
 
       {/* CTA Buttons */}
       <div className="flex gap-3 pt-2">
-        <Button className="flex-1 bg-blue-600 text-white">
+        <Button className="flex-1">
           <MessageCircle className="w-4 h-4" />
           Chat dengan Penjual
         </Button>

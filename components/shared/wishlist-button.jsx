@@ -3,17 +3,20 @@
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 // Reusable wishlist button dengan counter
 export default function WishlistButton({ itemCount = 0 }) {
   return (
-    <Button variant="ghost" size="icon" className="relative">
-      <Heart className="w-5 h-5" />
-      {itemCount > 0 && (
-        <Badge variant="destructive" className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center text-xs">
-          {itemCount > 99 ? "99+" : itemCount}
-        </Badge>
-      )}
-    </Button>
+    <Link href="/wishlist">
+      <Button variant="ghost" size="icon" className="relative">
+        <Heart className="w-5 h-5" />
+        {itemCount > 0 && (
+          <Badge variant="destructive" className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center text-xs">
+            {itemCount > 99 ? "99+" : itemCount}
+          </Badge>
+        )}
+      </Button>
+    </Link>
   );
 }

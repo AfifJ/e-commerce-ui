@@ -66,7 +66,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                 onClick={handleWishlist}
               >
                 <Heart
-                  className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`}
+                  className={`w-4 h-4 ${isWishlisted ? 'fill-destructive text-destructive' : ''}`}
                 />
               </Button>
             </div>
@@ -81,7 +81,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           </p>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+          <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
 
@@ -165,7 +165,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           </p>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+          <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
 

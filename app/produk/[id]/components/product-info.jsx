@@ -168,10 +168,10 @@ export default function ProductInfo({ product }) {
         {/* Size Selection */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Ukuran: {selectedSize}</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700">
+            <h3 className="font-semibold text-foreground">Ukuran: {selectedSize}</h3>
+            <Button variant="ghost" size="sm">
               Size Guide
-            </button>
+            </Button>
           </div>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
@@ -217,15 +217,16 @@ export default function ProductInfo({ product }) {
       <div className="space-y-4">
         {/* Quantity Selector */}
         <div className="flex items-center space-x-4">
-          <span className="font-semibold text-gray-900">Jumlah:</span>
+          <span className="font-semibold text-foreground">Jumlah:</span>
           <div className="flex items-center border rounded-lg">
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => handleQuantityChange(-1)}
-              className="p-2 hover:bg-gray-100 transition-colors"
               disabled={quantity <= 1}
             >
               <Minus className="w-4 h-4" />
-            </button>
+            </Button>
             <Input
               type="number"
               value={quantity}
@@ -234,13 +235,14 @@ export default function ProductInfo({ product }) {
               min={1}
               max={10}
             />
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => handleQuantityChange(1)}
-              className="p-2 hover:bg-gray-100 transition-colors"
               disabled={quantity >= 10}
             >
               <Plus className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -256,8 +258,8 @@ export default function ProductInfo({ product }) {
           </Button>
           <Button
             size="lg"
+            variant="default"
             onClick={handleBuyNow}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             Beli Sekarang
           </Button>

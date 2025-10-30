@@ -55,12 +55,12 @@ export default function CategoryDropdown() {
           ))}
 
           {/* Flash Sale Link */}
-          <Button
+          {/* <Button
             variant="ghost"
             className="whitespace-nowrap text-red-600 hover:text-red-700 hover:bg-red-50 font-medium"
           >
             🔥 Flash Sale
-          </Button>
+          </Button> */}
         </div>
       </div>
     </nav>

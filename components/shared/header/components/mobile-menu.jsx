@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -24,26 +25,29 @@ import {
 } from "lucide-react";
 
 export default function MobileMenu({ isOpen, onClose, categories }) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleCategoryClick = (category) => {
-    console.log(`Navigate to category: ${category.slug}`);
+    router.push(`/kategori/${category.name.toLowerCase().replace(/\s+/g, '-')}`);
     onClose();
   };
 
   const handleFlashSaleClick = () => {
-    console.log("Navigate to flash sale");
+    router.push('/flash-sale');
     onClose();
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log(`Search for: ${searchQuery}`);
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
     onClose();
   };
 
   const handleLinkClick = (path) => {
-    console.log(`Navigate to: ${path}`);
+    router.push(path);
     onClose();
   };
 
@@ -103,12 +107,12 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
               <span className="text-xs text-gray-600">Home</span>
             </button>
             <button
-              onClick={() => handleLinkClick('/keranjang')}
+              onClick={() => handleLinkClick('/cart')}
               className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors relative"
             >
               <ShoppingBag className="w-5 h-5 text-gray-600 mb-1" />
               <span className="text-xs text-gray-600">Keranjang</span>
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">4</span>
             </button>
             <button
               onClick={() => handleLinkClick('/wishlist')}
@@ -116,10 +120,10 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
             >
               <Heart className="w-5 h-5 text-gray-600 mb-1" />
               <span className="text-xs text-gray-600">Wishlist</span>
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">15</span>
             </button>
             <button
-              onClick={() => handleLinkClick('/akun')}
+              onClick={() => handleLinkClick('/account')}
               className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <User className="w-5 h-5 text-gray-600 mb-1" />
@@ -158,7 +162,7 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
           </div>
 
           {/* Flash Sale */}
-          <div className="p-4 border-b border-gray-200">
+          {/* <div className="p-4 border-b border-gray-200">
             <button
               onClick={handleFlashSaleClick}
               className="w-full flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
@@ -174,7 +178,7 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
               </div>
               <ChevronRight className="w-4 h-4 text-red-400" />
             </button>
-          </div>
+          </div> */}
 
           {/* Quick Links */}
           <div className="p-4">

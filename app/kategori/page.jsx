@@ -21,13 +21,14 @@ import {
   Watch,
   Tablet,
   Package,
-  ChevronRight,
   Star,
   TrendingUp,
   Grid,
-  List
+  List,
+  ChevronRight
 } from "lucide-react";
 import Header from "@/components/shared/header/components/header";
+import Breadcrumb from "@/components/shared/breadcrumb";
 
 export default function AllCategoriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -237,15 +238,12 @@ export default function AllCategoriesPage() {
       <Header />
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-3">
-          <nav className="flex items-center space-x-2 text-sm text-gray-600">
-            <Home className="w-4 h-4" />
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-medium text-gray-900">Semua Kategori</span>
-          </nav>
-        </div>
-      </div>
+      <Breadcrumb items={[
+        {
+          label: 'Kategori',
+          href: null // Current page, not clickable
+        }
+      ]} />
 
       {/* Page Header */}
       <div className="bg-white border-b">
