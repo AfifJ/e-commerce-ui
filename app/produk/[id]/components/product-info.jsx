@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { productVariants } from "@/data/mock-data";
 import VendorCard from "./vendor-card";
+import { useCart } from "@/lib/cart/cart-context";
 
 export default function ProductInfo({ product }) {
   const [quantity, setQuantity] = useState(1);
@@ -28,6 +29,8 @@ export default function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState("M");
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [location, setLocation] = useState("");
+
+  const { addToCart, isInCart, getItemQuantity } = useCart();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', {
@@ -66,13 +69,18 @@ export default function ProductInfo({ product }) {
   };
 
   const handleAddToCart = () => {
-    // Implement add to cart logic
-    console.log(`Added ${quantity} x ${product.name} to cart`);
+    const variant = selectedColor !== 0 ? productVariants.colors[selectedColor].name : null;
+    addToCart(product, quantity, variant);
   };
 
   const handleBuyNow = () => {
-    // Implement buy now logic
-    console.log(`Buy now: ${quantity} x ${product.name}`);
+    // Add to cart and redirect to checkout
+    const variant = selectedColor !== 0 ? productVariants.colors[selectedColor].name : null;
+    addToCart(product, quantity, variant);
+    // Redirect to cart/checkout after a short delay
+    setTimeout(() => {
+      window.location.href = '/cart';
+    }, 500);
   };
 
   const handleWishlist = () => {

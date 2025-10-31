@@ -339,23 +339,14 @@ export default function CartSummary({
           </div>
 
           {/* Payment Methods */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          {/* <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="text-xs text-gray-500 mb-2">Metode Pembayaran:</div>
             <div className="flex gap-2">
-              <div className="w-8 h-5 bg-gray-800 rounded flex items-center justify-center">
-                <span className="text-white text-xs">VISA</span>
-              </div>
-              <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">GOPAY</span>
-              </div>
-              <div className="w-8 h-5 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">OVO</span>
-              </div>
               <div className="w-8 h-5 bg-purple-600 rounded flex items-center justify-center">
                 <span className="text-white text-xs">QRIS</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

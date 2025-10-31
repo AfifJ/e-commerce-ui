@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/shared/header/components/header";
-import { CartProvider, useCart } from "@/lib/cart-context";
+import { CartProvider, useCart } from "@/lib/cart/cart-context";
 import EmptyCart from "./components/empty-cart";
 import CartItem from "./components/cart-item";
 import CartSummary from "./components/cart-summary";
@@ -67,10 +67,26 @@ function CartContent() {
 
   const handleCheckout = () => {
     setIsLoading(true);
-    // Simulate checkout process
+
+    // Prepare checkout data
+    const checkoutData = {
+      items: items,
+      subtotal: subtotal,
+      shipping: shipping,
+      discount: discount,
+      total: total,
+      voucher: voucher,
+      orderNotes: orderNotes,
+      timestamp: new Date().toISOString()
+    };
+
+    // Store checkout data in sessionStorage
+    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+
+    // Simulate processing time then redirect
     setTimeout(() => {
       router.push('/checkout');
-    }, 1000);
+    }, 500);
   };
 
   const handleMoveToWishlist = (item) => {

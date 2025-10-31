@@ -106,89 +106,88 @@ export default function ProfilePage() {
 
               {/* Content */}
               <div className="space-y-8">
-                  {/* Personal Information */}
-                  <section>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Informasi Pribadi</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="firstName">Nama Depan</Label>
-                        <Input
-                          id="firstName"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Nama Belakang</Label>
-                        <Input
-                          id="lastName"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone">Nomor Telepon</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="birthDate">Tanggal Lahir</Label>
-                        <Input
-                          id="birthDate"
-                          name="birthDate"
-                          type="date"
-                          value={formData.birthDate}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="gender">Jenis Kelamin</Label>
-                        <Select
-                          value={formData.gender}
-                          onValueChange={(value) => handleSelectChange("gender", value)}
-                          disabled={!isEditing}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="male">Laki-laki</SelectItem>
-                            <SelectItem value="female">Perempuan</SelectItem>
-                            <SelectItem value="other">Lainnya</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                {/* Personal Information */}
+                <section>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informasi Pribadi</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="firstName">Nama Depan</Label>
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="mt-1"
+                      />
                     </div>
-                  </section>
+                    <div>
+                      <Label htmlFor="lastName">Nama Belakang</Label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Nomor Telepon</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="birthDate">Tanggal Lahir</Label>
+                      <Input
+                        id="birthDate"
+                        name="birthDate"
+                        type="date"
+                        value={formData.birthDate}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="gender">Jenis Kelamin</Label>
+                      <Select
+                        value={formData.gender}
+                        onValueChange={(value) => handleSelectChange("gender", value)}
+                        disabled={!isEditing}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">Laki-laki</SelectItem>
+                          <SelectItem value="female">Perempuan</SelectItem>
+                          <SelectItem value="other">Lainnya</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </section>
 
-                  {/* Preferences */}
-                  <section>
+                {/* <section>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Preferensi</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
@@ -224,10 +223,9 @@ export default function ProfilePage() {
                         </Select>
                       </div>
                     </div>
-                  </section>
+                  </section> */}
 
-                  {/* Communication Preferences */}
-                  <section>
+                {/* <section>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Preferensi Komunikasi</h3>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
@@ -259,10 +257,9 @@ export default function ProfilePage() {
                         </Label>
                       </div>
                     </div>
-                  </section>
+                  </section> */}
 
-                  {/* Account Actions */}
-                  <section>
+                {/* <section>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Akun</h3>
                     <div className="space-y-3">
                       <Button variant="outline" className="w-full justify-start">
@@ -272,12 +269,12 @@ export default function ProfilePage() {
                         Hapus Akun
                       </Button>
                     </div>
-                  </section>
-                </div>
+                  </section> */}
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
   );
 }

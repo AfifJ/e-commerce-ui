@@ -1,88 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import AuthLayout from "@/components/shared/auth/auth-layout";
 import FormInput from "@/components/shared/auth/form-input";
 import PasswordInput from "@/components/shared/auth/password-input";
 import SocialButton from "@/components/shared/auth/social-button";
+import { useAuth } from "@/stores/auth-store";
+import { loginSchema } from "./schema/login";
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false
-  });
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isLoading, isAuthenticated, getRedirectPath, clearError, error } = useAuth();
 
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(null);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ""
-      }));
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false
     }
-  };
+  });
 
-  const validateForm = () => {
-    const newErrors = {};
+  // Get success message from URL params
+  const successMessage = searchParams.get('message');
 
-    // Email validation
-    if (!formData.email) {
-      newErrors.email = "Email wajib diisi";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Format email tidak valid";
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/account');
     }
+  }, [isAuthenticated, router]);
 
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "Password wajib diisi";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password minimal 6 karakter";
-    }
+  // Clear form errors when user starts typing
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      if (form.formState.errors.root) {
+        form.clearErrors('root');
+      }
+      if (error) {
+        clearError();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, error, clearError]);
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
+  const onSubmit = async (data) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await login(
+        data.email,
+        data.password,
+        data.rememberMe
+      );
 
-      // TODO: Implement actual login logic
-      console.log("Login data:", formData);
+      if (!result.success) {
+        // Set root error untuk ditampilkan di form
+        form.setError('root', { message: result.error });
+        return;
+      }
 
-      // Simulate successful login
-      alert("Login berhasil! (Ini adalah simulasi)");
-
-      // TODO: Redirect to dashboard or previous page
-
+      // Redirect berdasarkan role user
+      const redirectPath = getRedirectPath(result.data.user?.role);
+      router.push(redirectPath);
     } catch (error) {
       console.error("Login error:", error);
-      setErrors({
-        general: "Email atau password salah. Silakan coba lagi."
-      });
-    } finally {
-      setIsLoading(false);
+      form.setError('root', { message: error.message || "Login gagal. Silakan coba lagi." });
     }
   };
 
@@ -113,11 +103,11 @@ export default function LoginPage() {
       title="Masuk ke Akun Anda"
       subtitle="Selamat datang kembali! Silakan masuk untuk melanjutkan"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* General Error */}
-        {errors.general && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-            <p className="text-sm text-destructive">{errors.general}</p>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+            <p className="text-sm text-green-800">{successMessage}</p>
           </div>
         )}
 
@@ -126,23 +116,17 @@ export default function LoginPage() {
           <FormInput
             label="Email"
             type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            error={errors.email}
+            {...form.register('email')}
+            error={form.formState.errors.email?.message}
             placeholder="nama@email.com"
-            required
             disabled={isLoading}
           />
 
           <PasswordInput
             label="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            error={errors.password}
+            {...form.register('password')}
+            error={form.formState.errors.password?.message}
             placeholder="Masukkan password Anda"
-            required
             disabled={isLoading}
           />
         </div>
@@ -152,10 +136,10 @@ export default function LoginPage() {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="rememberMe"
-              name="rememberMe"
-              checked={formData.rememberMe}
+              {...form.register('rememberMe')}
+              checked={form.watch('rememberMe')}
               onCheckedChange={(checked) =>
-                setFormData(prev => ({ ...prev, rememberMe: checked }))
+                form.setValue('rememberMe', checked)
               }
               disabled={isLoading}
             />
@@ -190,6 +174,13 @@ export default function LoginPage() {
             "Masuk"
           )}
         </Button>
+
+        {/* General Error */}
+        {form.formState.errors.root && (
+          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+            <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
+          </div>
+        )}
 
         {/* Divider */}
         <div className="relative">

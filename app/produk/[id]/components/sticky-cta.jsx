@@ -4,10 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, X, Plus, Minus } from "lucide-react";
+import { useCart } from "@/lib/cart/cart-context";
 
 export default function StickyCta({ product, isVisible, onClose }) {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const { addToCart, isInCart, getItemQuantity } = useCart();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', {
@@ -25,11 +28,15 @@ export default function StickyCta({ product, isVisible, onClose }) {
   };
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} x ${product.name} to cart`);
+    addToCart(product, quantity);
   };
 
   const handleBuyNow = () => {
-    console.log(`Buy now: ${quantity} x ${product.name}`);
+    // Add to cart and redirect to checkout
+    addToCart(product, quantity);
+    setTimeout(() => {
+      window.location.href = '/cart';
+    }, 500);
   };
 
   const handleWishlist = () => {
