@@ -7,7 +7,7 @@ import Breadcrumb from "@/components/shared/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PaymentTimer } from "@/app/checkout/components/payment-timer";
+import { PaymentTimer } from "@/app/(buyer)/checkout/components/payment-timer";
 import {
   ArrowLeft,
   Smartphone,
@@ -20,7 +20,7 @@ import {
   HelpCircle
 } from "lucide-react";
 import Link from "next/link";
-import { getOrderDetails, checkPaymentStatusAction, generateQRISAction } from "@/app/checkout/actions/checkout";
+import { getOrderDetails, checkPaymentStatusAction, generateQRISAction } from "@/app/(buyer)/checkout/actions/checkout";
 
 // QR Code Display Component
 function QRCodeDisplay({ qrisData, order, onRefresh }) {

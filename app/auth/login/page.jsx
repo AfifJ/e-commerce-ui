@@ -33,10 +33,24 @@ export default function LoginPage() {
   // Get success message from URL params
   const successMessage = searchParams.get('message');
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated based on role
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/account');
+      // Get current user data from Zustand store
+      const { useAuthStore } = require("@/stores/auth-store");
+      const currentUser = useAuthStore.getState().user;
+
+      // Redirect based on user role
+      const redirectMap = {
+        admin: '/admin/dashboard',
+        vendor: '/vendor/dashboard',
+        sales: '/sales/dashboard',
+        mitra: '/mitra/dashboard',
+        buyer: '/'
+      };
+
+      const redirectPath = redirectMap[currentUser?.role] || '/account';
+      router.push(redirectPath);
     }
   }, [isAuthenticated, router]);
 

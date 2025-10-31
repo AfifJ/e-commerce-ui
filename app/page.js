@@ -1,5 +1,10 @@
 import HomePage from "./home/page";
+import AdminGuard from "@/components/shared/admin-guard";
 
 export default function Home() {
-  return <HomePage />;
+  return (
+    <AdminGuard>
+      <HomePage />
+    </AdminGuard>
+  );
 }

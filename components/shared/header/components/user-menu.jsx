@@ -1,6 +1,6 @@
 "use client";
 
-import { User, LogIn, Package, Heart, Settings, LogOut, CheckCircle } from "lucide-react";
+import { User, LogIn, Package, Heart, Settings, LogOut, CheckCircle, Shield } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -124,6 +124,19 @@ export default function UserMenu() {
               <span>Wishlist</span>
             </Link>
           </DropdownMenuItem>
+
+          {/* Admin Portal Link - Only for admin users */}
+          {user?.role === 'admin' && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin/dashboard" className="flex items-center space-x-3 text-red-600 hover:text-red-700">
+                  <Shield className="w-4 h-4" />
+                  <span>Admin Portal</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
 
           <DropdownMenuSeparator />
 

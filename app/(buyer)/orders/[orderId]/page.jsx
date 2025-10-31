@@ -7,7 +7,7 @@ import Breadcrumb from "@/components/shared/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { OrderTimeline, TrackingInfo, OrderStatusBadge } from "@/app/checkout/components/order-timeline";
+import { OrderTimeline, TrackingInfo, OrderStatusBadge } from "@/app/(buyer)/checkout/components/order-timeline";
 import {
   ArrowLeft,
   Package,
@@ -23,7 +23,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import Link from "next/link";
-import { getOrderDetails } from "@/app/checkout/actions/checkout";
+import { getOrderDetails } from "@/app/(buyer)/checkout/actions/checkout";
 
 // Order Item Component
 function OrderItemDetail({ item }) {
