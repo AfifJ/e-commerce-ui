@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/shared/header/components/header";
 import Breadcrumb from "@/components/shared/breadcrumb";
-import SidebarNavigation from "../components/sidebar-navigation";
+import SidebarNavigation from "@/app/account/components/sidebar-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

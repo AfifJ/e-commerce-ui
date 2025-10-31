@@ -127,7 +127,7 @@ export default function Dashboard({ userData }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-gray-300 text-gray-700" asChild>
-            <Link href="/products">
+            <Link href="/">
               <ShoppingCart className="w-6 h-6" />
               <span>Lanjutkan Belanja</span>
             </Link>

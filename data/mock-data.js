@@ -911,8 +911,8 @@ export const userOrders = [
     status: "delivered",
     statusLabel: "Terkirim",
     items: [
-      { name: "iPhone 15 Pro Max", quantity: 1, price: 18999000 },
-      { name: "AirPods Pro 2", quantity: 1, price: 3999000 }
+      { name: "iPhone 15 Pro Max", quantity: 1, price: 18999000, image: "https://images.unsplash.com/photo-1592286115803-a1c3b552ee43?w=100&h=100&fit=crop&crop=center", variant: "Natural Titanium 256GB" },
+      { name: "AirPods Pro 2", quantity: 1, price: 3999000, image: "https://images.unsplash.com/photo-1606140949696-34e7272b3413?w=100&h=100&fit=crop&crop=center", variant: "USB-C" }
     ],
     trackingNumber: "TRK123456789",
     shippingAddress: {
@@ -931,9 +931,9 @@ export const userOrders = [
     status: "processing",
     statusLabel: "Diproses",
     items: [
-      { name: "MacBook Air M3", quantity: 1, price: 15999000 },
-      { name: "USB-C Hub", quantity: 1, price: 450000 },
-      { name: "Laptop Sleeve", quantity: 1, price: 250000 }
+      { name: "MacBook Air M3", quantity: 1, price: 15999000, image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop&crop=center", variant: "Midnight 13-inch 8GB/256GB" },
+      { name: "USB-C Hub", quantity: 1, price: 450000, image: "https://images.unsplash.com/photo-1528638835415-7b5320f6465a?w=100&h=100&fit=crop&crop=center", variant: "7-in-1" },
+      { name: "Laptop Sleeve", quantity: 1, price: 250000, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop&crop=center", variant: "Size M, Black" }
     ],
     trackingNumber: "TRK123456788",
     shippingAddress: {
@@ -952,7 +952,7 @@ export const userOrders = [
     status: "shipped",
     statusLabel: "Dikirim",
     items: [
-      { name: "Apple Watch Series 9", quantity: 1, price: 6999000 }
+      { name: "Apple Watch Series 9", quantity: 1, price: 6999000, image: "https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=100&h=100&fit=crop&crop=center", variant: "GPS 45mm Pink Aluminum" }
     ],
     trackingNumber: "TRK123456787",
     shippingAddress: {
@@ -963,6 +963,106 @@ export const userOrders = [
       phone: "+62 812-3456-7890"
     },
     canReview: false
+  },
+  {
+    id: "ORD-004",
+    date: "2024-10-18",
+    total: 1250000,
+    status: "delivered",
+    statusLabel: "Terkirim",
+    items: [
+      { name: "Premium Case iPhone", quantity: 2, price: 99000, image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center", variant: "Blue" },
+      { name: "Screen Protector Tempered Glass", quantity: 1, price: 49000, image: "https://images.unsplash.com/photo-1587854692158-c3a51596e649?w=100&h=100&fit=crop&crop=center", variant: "9H" },
+      { name: "Charging Cable Premium", quantity: 3, price: 79000, image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=100&h=100&fit=crop&crop=center", variant: "USB-C to Lightning 1.5m" }
+    ],
+    trackingNumber: "TRK123456786",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: true
+  },
+  {
+    id: "ORD-005",
+    date: "2024-10-15",
+    total: 2899000,
+    status: "pending",
+    statusLabel: "Pending",
+    items: [
+      { name: "Sony WH-1000XM5 Headphones", quantity: 1, price: 2899000, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop&crop=center", variant: "Midnight Black" }
+    ],
+    trackingNumber: null,
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: false
+  },
+  {
+    id: "ORD-006",
+    date: "2024-10-12",
+    total: 3450000,
+    status: "delivered",
+    statusLabel: "Terkirim",
+    items: [
+      { name: "iPad Air 5th Gen", quantity: 1, price: 8999000, image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=100&h=100&fit=crop&crop=center", variant: "Wi-Fi 64GB Space Gray" },
+      { name: "Apple Pencil 2nd Gen", quantity: 1, price: 1499000, image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=100&h=100&fit=crop&crop=center" },
+      { name: "iPad Smart Cover", quantity: 1, price: 99000, image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=100&h=100&fit=crop&crop=center", variant: "English Lavender" }
+    ],
+    trackingNumber: "TRK123456785",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: true
+  },
+  {
+    id: "ORD-007",
+    date: "2024-10-10",
+    total: 890000,
+    status: "processing",
+    statusLabel: "Diproses",
+    items: [
+      { name: "Coffee Maker Premium", quantity: 1, price: 1599000, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=100&h=100&fit=crop&crop=center" }
+    ],
+    trackingNumber: "TRK123456784",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: false
+  },
+  {
+    id: "ORD-008",
+    date: "2024-10-08",
+    total: 750000,
+    status: "delivered",
+    statusLabel: "Terkirim",
+    items: [
+      { name: "Tas Leather Premium", quantity: 1, price: 750000, variant: "Cognac, Size L" }, // Tanpa gambar untuk testing fallback
+      { name: "Dompet Pria Premium", quantity: 1, price: 350000, image: "https://images.unsplash.com/photo-1622565891845-762463e37b5a?w=100&h=100&fit=crop&crop=center", variant: "Black" }
+    ],
+    trackingNumber: "TRK123456783",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: true
   }
 ];
 

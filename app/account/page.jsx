@@ -13,6 +13,7 @@ import Header from "@/components/shared/header/components/header";
 import Breadcrumb from "@/components/shared/breadcrumb";
 import Dashboard from "./components/dashboard";
 import { userProfile } from "@/data/mock-data";
+import SidebarNavigation from "./components/sidebar-navigation";
 
 export default function AccountPage() {
   const breadcrumbItems = [
@@ -84,9 +85,13 @@ export default function AccountPage() {
         <div className="hidden lg:block">
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Sidebar Navigation - Desktop Only */}
-            <div className="lg:w-80">
+            <div className="lg:w-80 order-1 lg:order-1">
+              <div className="sticky top-8 lg:block border-t border-gray-200 pt-6 lg:border-t-0 lg:pt-0">
+                <SidebarNavigation />
+              </div>
+            </div>
+            {/* <div className="lg:w-80">
               <div className="sticky top-12 space-y-6">
-                {/* Quick Menu */}
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                   <h3 className="font-semibold text-gray-900 mb-4">Menu Cepat</h3>
                   <div className="space-y-2">
@@ -106,10 +111,10 @@ export default function AccountPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Main Dashboard Content */}
-            <div className="flex-1">
+            <div className="flex-1 order-2 lg:order-2">
               <Dashboard userData={userProfile} />
             </div>
           </div>
