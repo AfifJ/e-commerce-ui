@@ -4,23 +4,42 @@ import {
   text,
   timestamp,
   boolean,
+  json,
 } from "drizzle-orm/mysql-core";
 
-export const users = mysqlTable("users", {
+// Table: roles
+export const roles = mysqlTable("roles", {
   id: varchar("id", { length: 36 }).primaryKey(),
-  name: text("name").notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  emailVerified: boolean("email_verified").default(false).notNull(),
-  image: text("image"),
+  name: varchar("name", { length: 50 }).notNull().unique(),
+  description: text("description"),
+  permissions: json("permissions"),
   createdAt: timestamp("created_at", { fsp: 3 }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { fsp: 3 })
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
-  role: text("role").default("buyer").notNull(),
-  phone: text("phone").notNull(),
-  phoneVerifiedAt: timestamp("phone_verified_at", { fsp: 3 }),
+});
+
+// Table: users (Updated for Bahana UMKM)
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  username: varchar("username", { length: 100 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  name: text("name").notNull(), // full_name
+  phone: varchar("phone", { length: 20 }).notNull(),
+  phoneVerified: boolean("phone_verified").default(false).notNull(),
+  verificationCode: varchar("verification_code", { length: 10 }),
+  image: text("image"), // avatar_url
+  roleId: varchar("role_id", { length: 36 }).references(() => roles.id),
   isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login", { fsp: 3 }),
+  currentHotelId: varchar("current_hotel_id", { length: 36 }),
+  createdAt: timestamp("created_at", { fsp: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { fsp: 3 })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const sessions = mysqlTable("sessions", {
