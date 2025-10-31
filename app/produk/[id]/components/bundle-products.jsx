@@ -5,41 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Check } from "lucide-react";
-import { products } from "@/data/mock-data";
+import { products, bundleProducts } from "@/data/mock-data";
 
 export default function BundleProducts({ product }) {
   const [selectedBundle, setSelectedBundle] = useState([]);
 
-  // Mock data untuk produk bundle
-  const bundleProducts = [
-    {
-      id: 101,
-      name: "Premium Case",
-      price: 99000,
-      originalPrice: 149000,
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center",
-      description: "Pelindung premium dengan desain elegant",
-      category: "Aksesoris"
-    },
-    {
-      id: 102,
-      name: "Screen Protector Tempered Glass",
-      price: 49000,
-      originalPrice: 79000,
-      image: "https://images.unsplash.com/photo-1587854692158-c3a51596e649?w=100&h=100&fit=crop&crop=center",
-      description: "Anti gores 9H dengan clarity maksimal",
-      category: "Aksesoris"
-    },
-    {
-      id: 103,
-      name: "Charging Cable Premium",
-      price: 79000,
-      originalPrice: 99000,
-      image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=100&h=100&fit=crop&crop=center",
-      description: "Kabel fast charging dengan material durable",
-      category: "Aksesoris"
-    }
-  ];
+  // Menggunakan data dari mock-data.js untuk produk bundle
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', {

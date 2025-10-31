@@ -23,6 +23,7 @@ import {
   MessageCircle,
   Twitter
 } from "lucide-react";
+import { contactInfo } from "@/data/mock-data";
 
 export default function MobileMenu({ isOpen, onClose, categories }) {
   const router = useRouter();
@@ -218,28 +219,27 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
           <div className="space-y-2 mb-4">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Phone className="w-4 h-4" />
-              <span>+62 812-3456-7890</span>
+              <span>{contactInfo.phone}</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Mail className="w-4 h-4" />
-              <span>support@premium.com</span>
+              <span>{contactInfo.email}</span>
             </div>
           </div>
 
           {/* Social Media */}
           <div className="flex items-center justify-center space-x-4 mb-4">
-            <button className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <Instagram className="w-4 h-4 text-gray-600" />
-            </button>
-            <button className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <Facebook className="w-4 h-4 text-gray-600" />
-            </button>
-            <button className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <MessageCircle className="w-4 h-4 text-gray-600" />
-            </button>
-            <button className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <Twitter className="w-4 h-4 text-gray-600" />
-            </button>
+            {contactInfo.socialMedia.map((social, index) => {
+              const IconComponent = getIconComponent(social.icon);
+              return (
+                <button
+                  key={index}
+                  className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+                >
+                  <IconComponent className="w-4 h-4 text-gray-600" />
+                </button>
+              );
+            })}
           </div>
 
           {/* App Download */}
@@ -247,10 +247,10 @@ export default function MobileMenu({ isOpen, onClose, categories }) {
             <p className="text-xs text-gray-500 mb-2">Download our app</p>
             <div className="flex justify-center space-x-2">
               <button className="px-3 py-1 bg-black text-white text-xs rounded">
-                App Store
+                {contactInfo.appDownload.appStore}
               </button>
               <button className="px-3 py-1 bg-black text-white text-xs rounded">
-                Play Store
+                {contactInfo.appDownload.playStore}
               </button>
             </div>
           </div>

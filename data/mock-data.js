@@ -456,6 +456,516 @@ export function calculateDiscount(voucher, subtotal) {
   return discount;
 }
 
+// Product variants data
+export const productVariants = {
+  colors: [
+    { name: "Hitam", value: "#000000", inStock: true },
+    { name: "Navy", value: "#1e3a8a", inStock: true },
+    { name: "Abu-abu", value: "#6b7280", inStock: false },
+    { name: "Putih", value: "#ffffff", inStock: true },
+  ],
+  sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+  promoOffers: [
+    { icon: "Truck", text: "Gratis Ongkir ke Jakarta" },
+    { icon: "CreditCard", text: "Cicilan 0% 3x dengan Kartu Kredit BCA" },
+    { icon: "RefreshCw", text: "Bebas Return 30 Hari" },
+    { icon: "Shield", text: "Garansi 100% Original" },
+  ]
+};
+
+// Bundle products data
+export const bundleProducts = [
+  {
+    id: 101,
+    name: "Premium Case",
+    price: 99000,
+    originalPrice: 149000,
+    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center",
+    description: "Pelindung premium dengan desain elegant",
+    category: "Aksesoris"
+  },
+  {
+    id: 102,
+    name: "Screen Protector Tempered Glass",
+    price: 49000,
+    originalPrice: 79000,
+    image: "https://images.unsplash.com/photo-1587854692158-c3a51596e649?w=100&h=100&fit=crop&crop=center",
+    description: "Anti gores 9H dengan clarity maksimal",
+    category: "Aksesoris"
+  },
+  {
+    id: 103,
+    name: "Charging Cable Premium",
+    price: 79000,
+    originalPrice: 99000,
+    image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=100&h=100&fit=crop&crop=center",
+    description: "Kabel fast charging dengan material durable",
+    category: "Aksesoris"
+  }
+];
+
+// Product tabs data
+export const productTabsData = {
+  // Product description data
+  productDescription: {
+    mainDescription: (productName) => `Temukan kualitas dan kenyamanan dalam ${productName}. Produk ini dirancang dengan memperhatikan setiap detail untuk memberikan pengalaman terbaik bagi pengguna. Dibuat dengan material pilihan dan teknologi terkini, produk ini menjadi pilihan sempurna untuk kebutuhan sehari-hari Anda.`,
+    features: [
+      "Material premium berkualitas tinggi",
+      "Desain ergonomis yang nyaman digunakan",
+      "Tahan lama dan mudah perawatannya",
+      "Teknologi terkini untuk performa optimal",
+      "Garansi resmi dari produsen"
+    ],
+    materials: "Dibuat dengan 100% material berkualitas tinggi yang telah melalui proses quality control ketat untuk memastikan produk yang Anda terima dalam kondisi sempurna.",
+    care: "Cara perawatan: Cuci dengan air dingin, jangan gunakan pemutih, setrika dengan suhu rendah, jangan dry clean.",
+    dimensions: "Dimensi: 30cm x 20cm x 10cm",
+    weight: "Berat: 500g",
+    packageIncludes: [
+      "1x Produk Utama",
+      "1x Buku Panduan",
+      "1x Kartu Garansi",
+      "1x Packaging Premium"
+    ]
+  },
+
+  // Specifications data
+  specifications: (product) => [
+    { category: "Umum", items: [
+      { label: "Merek", value: "Premium" },
+      { label: "Model", value: product.name },
+      { label: "Kategori", value: product.category },
+      { label: "Berat", value: "500g" },
+      { label: "Dimensi", value: "30x20x10 cm" }
+    ]},
+    { category: "Material", items: [
+      { label: "Bahan Utama", value: "100% Cotton Premium" },
+      { label: "Kualitas", value: "Grade A" },
+      { label: "Sertifikasi", value: "ISO 9001:2015" },
+      { label: "Eco-Friendly", value: "Yes" }
+    ]},
+    { category: "Garansi", items: [
+      { label: "Masa Garansi", value: "12 Bulan" },
+      { label: "Cakupan", value: "Produk Defect" },
+      { label: "Service Center", value: "Tersedia di 20 Kota" }
+    ]}
+  ],
+
+  // Reviews data
+  reviews: [
+    {
+      id: 1,
+      name: "Sarah Putri",
+      rating: 5,
+      date: "2 hari yang lalu",
+      verified: true,
+      text: "Produk sangat bagus! Kualitas sesuai dengan harga dan pengiriman cepat. Recommended seller!",
+      helpful: 23,
+      images: []
+    },
+    {
+      id: 2,
+      name: "Budi Santoso",
+      rating: 4,
+      date: "1 minggu yang lalu",
+      verified: true,
+      text: "Bagus, cuma pengiriman agak lama. Tapi produknya memang worth it dengan harga segini.",
+      helpful: 15,
+      images: []
+    },
+    {
+      id: 3,
+      name: "Maya Indah",
+      rating: 5,
+      date: "2 minggu yang lalu",
+      verified: true,
+      text: "Sudah beli yang kedua kalinya, kualitas always the best! Packaging rapi dan aman.",
+      helpful: 31,
+      images: []
+    }
+  ],
+
+  // FAQ data
+  faqs: [
+    {
+      question: "Apakah produk ini bergaransi?",
+      answer: "Ya, semua produk kami bergaransi 12 bulan untuk cacat produksi. Garansi tidak berlaku untuk kerusakan akibat penggunaan yang salah."
+    },
+    {
+      question: "Bagaimana cara klaim garansi?",
+      answer: "Hubungi customer service kami dengan menyertakan nomor order dan foto/video kerusakan. Tim kami akan memandu proses klaim Anda."
+    },
+    {
+      question: "Apakah bisa return jika tidak cocok?",
+      answer: "Ya, kami menyediakan kebijakan return 30 hari. Produk harus dalam kondisi baru dengan label dan packaging lengkap."
+    },
+    {
+      question: "Berapa lama pengiriman ke luar kota?",
+      answer: "Pengiriman regular 3-7 hari kerja untuk pulau Jawa dan 7-14 hari kerja untuk luar pulau Jawa. Pengiriman ekspres tersedia dengan biaya tambahan."
+    },
+    {
+      question: "Apakah ada diskon untuk pembelian grosir?",
+      answer: "Ya, kami menyediakan harga khusus untuk pembelian minimal 5 pcs. Hubungi tim sales kami untuk info lebih lanjut."
+    }
+  ]
+};
+
+// Extended categories data for all categories page
+export const allCategories = [
+  {
+    id: 1,
+    name: "Elektronik",
+    icon: "Smartphone",
+    image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop&crop=center",
+    productCount: 1248,
+    description: "Gadget dan perangkat elektronik terkini",
+    subcategories: [
+      { name: "Smartphone", count: 456 },
+      { name: "Laptop", count: 234 },
+      { name: "Tablet", count: 123 },
+      { name: "Smartwatch", count: 89 },
+      { name: "Audio", count: 346 }
+    ],
+    isHot: true,
+    color: "bg-blue-500"
+  },
+  {
+    id: 2,
+    name: "Fashion",
+    icon: "Shirt",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center",
+    productCount: 3456,
+    description: "Pakaian dan aksesoris fashion terkini",
+    subcategories: [
+      { name: "Pakaian Pria", count: 1234 },
+      { name: "Pakaian Wanita", count: 1567 },
+      { name: "Sepatu", count: 456 },
+      { name: "Tas", count: 123 },
+      { name: "Aksesoris", count: 76 }
+    ],
+    color: "bg-purple-500"
+  },
+  {
+    id: 3,
+    name: "Rumah Tangga",
+    icon: "Home",
+    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&crop=center",
+    productCount: 892,
+    description: "Perlengkapan dan dekorasi rumah",
+    subcategories: [
+      { name: "Dekorasi", count: 234 },
+      { name: "Perabot", count: 345 },
+      { name: "Dapur", count: 189 },
+      { name: "Kamar Mandi", count: 78 },
+      { name: "Taman", count: 46 }
+    ],
+    isTrending: true,
+    color: "bg-green-500"
+  },
+  {
+    id: 4,
+    name: "Otomotif",
+    icon: "Car",
+    image: "https://images.unsplash.com/photo-1542362567-b07e54358753?w=400&h=300&fit=crop&crop=center",
+    productCount: 567,
+    description: "Aksesoris dan perawatan kendaraan",
+    subcategories: [
+      { name: "Mobil", count: 234 },
+      { name: "Motor", count: 189 },
+      { name: "Aksesoris", count: 123 },
+      { name: "Perawatan", count: 21 }
+    ],
+    color: "bg-red-500"
+  },
+  {
+    id: 5,
+    name: "Gaming",
+    icon: "Gamepad2",
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center",
+    productCount: 789,
+    description: "Perangkat gaming dan aksesoris",
+    subcategories: [
+      { name: "Console", count: 123 },
+      { name: "PC Gaming", count: 234 },
+      { name: "Aksesoris", count: 345 },
+      { name: "Game", count: 87 }
+    ],
+    isHot: true,
+    color: "bg-indigo-500"
+  },
+  {
+    id: 6,
+    name: "Buku & Alat Tulis",
+    icon: "Book",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center",
+    productCount: 2345,
+    description: "Buku, majalah, dan alat tulis",
+    subcategories: [
+      { name: "Buku", count: 1234 },
+      { name: "Alat Tulis", count: 678 },
+      { name: "Majalah", count: 234 },
+      { name: "E-Book", count: 199 }
+    ],
+    color: "bg-yellow-500"
+  },
+  {
+    id: 7,
+    name: "Kesehatan & Kecantikan",
+    icon: "Heart",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center",
+    productCount: 1567,
+    description: "Produk kesehatan dan kecantikan",
+    subcategories: [
+      { name: "Skincare", count: 567 },
+      { name: "Makeup", count: 345 },
+      { name: "Kesehatan", count: 456 },
+      { name: "Perawatan", count: 199 }
+    ],
+    isTrending: true,
+    color: "bg-pink-500"
+  },
+  {
+    id: 8,
+    name: "Kamera",
+    icon: "Camera",
+    image: "https://images.unsplash.com/photo-1516035069371-2981d14848aa?w=400&h=300&fit=crop&crop=center",
+    productCount: 445,
+    description: "Kamera dan perlengkapannya",
+    subcategories: [
+      { name: "DSLR", count: 123 },
+      { name: "Mirrorless", count: 89 },
+      { name: "Action Cam", count: 67 },
+      { name: "Aksesoris", count: 166 }
+    ],
+    color: "bg-teal-500"
+  },
+  {
+    id: 9,
+    name: "Audio",
+    icon: "Headphones",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&crop=center",
+    productCount: 678,
+    description: "Headphone, speaker, dan audio system",
+    subcategories: [
+      { name: "Headphone", count: 234 },
+      { name: "Speaker", count: 189 },
+      { name: "Audio System", count: 123 },
+      { name: "Aksesoris", count: 132 }
+    ],
+    color: "bg-orange-500"
+  },
+  {
+    id: 10,
+    name: "Smartwatch",
+    icon: "Watch",
+    image: "https://images.unsplash.com/photo-1523275335684-e5db3bdc6a86?w=400&h=300&fit=crop&crop=center",
+    productCount: 334,
+    description: "Jam pintar dan aksesorisnya",
+    subcategories: [
+      { name: "Apple Watch", count: 89 },
+      { name: "Samsung Watch", count: 67 },
+      { name: "Smartband", count: 123 },
+      { name: "Aksesoris", count: 55 }
+    ],
+    color: "bg-cyan-500"
+  },
+  {
+    id: 11,
+    name: "Tablet",
+    icon: "Tablet",
+    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop&crop=center",
+    productCount: 223,
+    description: "Tablet dan aksesoris",
+    subcategories: [
+      { name: "iPad", count: 67 },
+      { name: "Samsung Tab", count: 45 },
+      { name: "Android Tablet", count: 78 },
+      { name: "Aksesoris", count: 33 }
+    ],
+    color: "bg-lime-500"
+  },
+  {
+    id: 12,
+    name: "Lainnya",
+    icon: "Package",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop&crop=center",
+    productCount: 890,
+    description: "Berbagai produk lainnya",
+    subcategories: [
+      { name: "Mainan", count: 234 },
+      { name: "Hobi", count: 189 },
+      { name: "Olahraga", count: 267 },
+      { name: "Lainnya", count: 200 }
+    ],
+    color: "bg-gray-500"
+  }
+];
+
+// Contact and social data
+export const contactInfo = {
+  phone: "+62 812-3456-7890",
+  email: "support@premium.com",
+  socialMedia: [
+    { name: "Instagram", icon: "Instagram", href: "#" },
+    { name: "Facebook", icon: "Facebook", href: "#" },
+    { name: "MessageCircle", icon: "MessageCircle", href: "#" },
+    { name: "Twitter", icon: "Twitter", href: "#" }
+  ],
+  appDownload: {
+    appStore: "App Store",
+    playStore: "Play Store"
+  }
+};
+
+// Same brand products data
+export const sameBrandProducts = (currentProduct) => [
+  {
+    id: 201,
+    name: "Premium Series X Pro",
+    category: currentProduct.category,
+    price: 1599000,
+    originalPrice: null,
+    image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=300&h=300&fit=crop&crop=center",
+    rating: 4.9,
+    reviews: 89,
+    badge: "NEW",
+    description: "Versi upgrade dengan fitur premium"
+  },
+  {
+    id: 202,
+    name: "Premium Classic",
+    category: currentProduct.category,
+    price: 899000,
+    originalPrice: 1299000,
+    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop&crop=center",
+    rating: 4.7,
+    reviews: 156,
+    badge: "BESTSELLER",
+    description: "Klasik yang selalu diminati"
+  }
+];
+
+// User profile data
+export const userProfile = {
+  id: "user-001",
+  name: "Ahmad Fauzi",
+  email: "ahmad.fauzi@email.com",
+  phone: "+62 812-3456-7890",
+  avatar: "/images/avatars/default-avatar.png",
+  memberSince: "2024-01-15",
+  memberLevel: "Premium Member",
+  totalOrders: 12,
+  totalSpent: 4500000,
+  wishlistCount: 8,
+  reviewsCount: 5,
+  preferences: {
+    language: "id",
+    currency: "IDR",
+    newsletter: true,
+    marketingEmails: false
+  }
+};
+
+// User addresses data
+export const userAddresses = [
+  {
+    id: "addr-001",
+    name: "Rumah",
+    recipient: "Ahmad Fauzi",
+    phone: "+62 812-3456-7890",
+    address: "Jl. Merdeka No. 123",
+    city: "Jakarta Selatan",
+    province: "DKI Jakarta",
+    postalCode: "12345",
+    isDefault: true
+  },
+  {
+    id: "addr-002",
+    name: "Kantor",
+    recipient: "Ahmad Fauzi",
+    phone: "+62 812-3456-7890",
+    address: "Jl. Sudirman No. 456, Gedung Bursa Lt. 15",
+    city: "Jakarta Pusat",
+    province: "DKI Jakarta",
+    postalCode: "10210",
+    isDefault: false
+  },
+  {
+    id: "addr-003",
+    name: "Orang Tua",
+    recipient: "Siti Aminah",
+    phone: "+62 813-4567-8901",
+    address: "Jl. Veteran No. 78",
+    city: "Bandung",
+    province: "Jawa Barat",
+    postalCode: "40115",
+    isDefault: false
+  }
+];
+
+// User orders data
+export const userOrders = [
+  {
+    id: "ORD-001",
+    date: "2024-10-28",
+    total: 750000,
+    status: "delivered",
+    statusLabel: "Terkirim",
+    items: [
+      { name: "iPhone 15 Pro Max", quantity: 1, price: 18999000 },
+      { name: "AirPods Pro 2", quantity: 1, price: 3999000 }
+    ],
+    trackingNumber: "TRK123456789",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: true
+  },
+  {
+    id: "ORD-002",
+    date: "2024-10-25",
+    total: 1200000,
+    status: "processing",
+    statusLabel: "Diproses",
+    items: [
+      { name: "MacBook Air M3", quantity: 1, price: 15999000 },
+      { name: "USB-C Hub", quantity: 1, price: 450000 },
+      { name: "Laptop Sleeve", quantity: 1, price: 250000 }
+    ],
+    trackingNumber: "TRK123456788",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: false
+  },
+  {
+    id: "ORD-003",
+    date: "2024-10-20",
+    total: 550000,
+    status: "shipped",
+    statusLabel: "Dikirim",
+    items: [
+      { name: "Apple Watch Series 9", quantity: 1, price: 6999000 }
+    ],
+    trackingNumber: "TRK123456787",
+    shippingAddress: {
+      name: "Ahmad Fauzi",
+      address: "Jl. Merdeka No. 123",
+      city: "Jakarta Selatan",
+      postalCode: "12345",
+      phone: "+62 812-3456-7890"
+    },
+    canReview: false
+  }
+];
+
 // Wishlist products data
 export const wishlistProducts = [
   {

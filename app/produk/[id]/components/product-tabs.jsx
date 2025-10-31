@@ -14,6 +14,7 @@ import {
   Package,
   CheckCircle
 } from "lucide-react";
+import { productTabsData } from "@/data/mock-data";
 
 export default function ProductTabs({ product }) {
   const [activeTab, setActiveTab] = useState("deskripsi");
@@ -26,107 +27,8 @@ export default function ProductTabs({ product }) {
     { id: "faq", label: "FAQ" },
   ];
 
-  // Mock data untuk deskripsi produk
-  const productDescription = {
-    mainDescription: `Temukan kualitas dan kenyamanan dalam ${product.name}. Produk ini dirancang dengan memperhatikan setiap detail untuk memberikan pengalaman terbaik bagi pengguna. Dibuat dengan material pilihan dan teknologi terkini, produk ini menjadi pilihan sempurna untuk kebutuhan sehari-hari Anda.`,
-    features: [
-      "Material premium berkualitas tinggi",
-      "Desain ergonomis yang nyaman digunakan",
-      "Tahan lama dan mudah perawatannya",
-      "Teknologi terkini untuk performa optimal",
-      "Garansi resmi dari produsen"
-    ],
-    materials: "Dibuat dengan 100% material berkualitas tinggi yang telah melalui proses quality control ketat untuk memastikan produk yang Anda terima dalam kondisi sempurna.",
-    care: "Cara perawatan: Cuci dengan air dingin, jangan gunakan pemutih, setrika dengan suhu rendah, jangan dry clean.",
-    dimensions: "Dimensi: 30cm x 20cm x 10cm",
-    weight: "Berat: 500g",
-    packageIncludes: [
-      "1x Produk Utama",
-      "1x Buku Panduan",
-      "1x Kartu Garansi",
-      "1x Packaging Premium"
-    ]
-  };
-
-  // Mock data untuk spesifikasi
-  const specifications = [
-    { category: "Umum", items: [
-      { label: "Merek", value: "Premium" },
-      { label: "Model", value: product.name },
-      { label: "Kategori", value: product.category },
-      { label: "Berat", value: "500g" },
-      { label: "Dimensi", value: "30x20x10 cm" }
-    ]},
-    { category: "Material", items: [
-      { label: "Bahan Utama", value: "100% Cotton Premium" },
-      { label: "Kualitas", value: "Grade A" },
-      { label: "Sertifikasi", value: "ISO 9001:2015" },
-      { label: "Eco-Friendly", value: "Yes" }
-    ]},
-    { category: "Garansi", items: [
-      { label: "Masa Garansi", value: "12 Bulan" },
-      { label: "Cakupan", value: "Produk Defect" },
-      { label: "Service Center", value: "Tersedia di 20 Kota" }
-    ]}
-  ];
-
-  // Mock data untuk ulasan
-  const reviews = [
-    {
-      id: 1,
-      name: "Sarah Putri",
-      rating: 5,
-      date: "2 hari yang lalu",
-      verified: true,
-      text: "Produk sangat bagus! Kualitas sesuai dengan harga dan pengiriman cepat. Recommended seller!",
-      helpful: 23,
-      images: []
-    },
-    {
-      id: 2,
-      name: "Budi Santoso",
-      rating: 4,
-      date: "1 minggu yang lalu",
-      verified: true,
-      text: "Bagus, cuma pengiriman agak lama. Tapi produknya memang worth it dengan harga segini.",
-      helpful: 15,
-      images: []
-    },
-    {
-      id: 3,
-      name: "Maya Indah",
-      rating: 5,
-      date: "2 minggu yang lalu",
-      verified: true,
-      text: "Sudah beli yang kedua kalinya, kualitas always the best! Packaging rapi dan aman.",
-      helpful: 31,
-      images: []
-    }
-  ];
-
-  // Mock data untuk FAQ
-  const faqs = [
-    {
-      question: "Apakah produk ini bergaransi?",
-      answer: "Ya, semua produk kami bergaransi 12 bulan untuk cacat produksi. Garansi tidak berlaku untuk kerusakan akibat penggunaan yang salah."
-    },
-    {
-      question: "Bagaimana cara klaim garansi?",
-      answer: "Hubungi customer service kami dengan menyertakan nomor order dan foto/video kerusakan. Tim kami akan memandu proses klaim Anda."
-    },
-    {
-      question: "Apakah bisa return jika tidak cocok?",
-      answer: "Ya, kami menyediakan kebijakan return 30 hari. Produk harus dalam kondisi baru dengan label dan packaging lengkap."
-    },
-    {
-      question: "Berapa lama pengiriman ke luar kota?",
-      answer: "Pengiriman regular 3-7 hari kerja untuk pulau Jawa dan 7-14 hari kerja untuk luar pulau Jawa. Pengiriman ekspres tersedia dengan biaya tambahan."
-    },
-    {
-      question: "Apakah ada diskon untuk pembelian grosir?",
-      answer: "Ya, kami menyediakan harga khusus untuk pembelian minimal 5 pcs. Hubungi tim sales kami untuk info lebih lanjut."
-    }
-  ];
+  // Menggunakan data dari mock-data.js
+  const { productDescription, specifications, reviews, faqs } = productTabsData;
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
@@ -174,7 +76,7 @@ export default function ProductTabs({ product }) {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Deskripsi Produk</h3>
               <p className="text-gray-700 leading-relaxed">
-                {productDescription.mainDescription}
+                {productDescription.mainDescription(product.name)}
               </p>
             </div>
 
@@ -227,7 +129,7 @@ export default function ProductTabs({ product }) {
         {/* Spesifikasi Tab */}
         {activeTab === "spesifikasi" && (
           <div className="space-y-6">
-            {specifications.map((spec, index) => (
+            {specifications(product).map((spec, index) => (
               <div key={index}>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{spec.category}</h3>
                 <div className="bg-gray-50 rounded-lg overflow-hidden">

@@ -1,6 +1,6 @@
 "use client";
 
-import { products } from "@/data/mock-data";
+import { products, sameBrandProducts } from "@/data/mock-data";
 import ProductCard from "@/components/shared/product-card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye, Heart } from "lucide-react";
@@ -16,33 +16,8 @@ export default function RelatedProducts({ currentProduct }) {
     .filter(product => product.id !== currentProduct.id && product.category === currentProduct.category)
     .slice(0, 3);
 
-  // Mock data untuk "Dari Brand yang Sama"
-  const sameBrand = [
-    {
-      id: 201,
-      name: "Premium Series X Pro",
-      category: currentProduct.category,
-      price: 1599000,
-      originalPrice: null,
-      image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=300&h=300&fit=crop&crop=center",
-      rating: 4.9,
-      reviews: 89,
-      badge: "NEW",
-      description: "Versi upgrade dengan fitur premium"
-    },
-    {
-      id: 202,
-      name: "Premium Classic",
-      category: currentProduct.category,
-      price: 899000,
-      originalPrice: 1299000,
-      image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop&crop=center",
-      rating: 4.7,
-      reviews: 156,
-      badge: "BESTSELLER",
-      description: "Klasik yang selalu diminati"
-    }
-  ];
+  // Menggunakan data dari mock-data.js untuk "Dari Brand yang Sama"
+  const sameBrand = sameBrandProducts(currentProduct);
 
   return (
     <div className="space-y-12 pt-6">

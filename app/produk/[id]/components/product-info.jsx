@@ -19,6 +19,7 @@ import {
   MapPin,
   Store
 } from "lucide-react";
+import { productVariants } from "@/data/mock-data";
 import VendorCard from "./vendor-card";
 
 export default function ProductInfo({ product }) {
@@ -43,22 +44,19 @@ export default function ProductInfo({ product }) {
 
   const discount = calculateDiscount();
 
-  // Mock data untuk varian
-  const colors = [
-    { name: "Hitam", value: "#000000", inStock: true },
-    { name: "Navy", value: "#1e3a8a", inStock: true },
-    { name: "Abu-abu", value: "#6b7280", inStock: false },
-    { name: "Putih", value: "#ffffff", inStock: true },
-  ];
+  // Menggunakan data dari mock-data.js
+  const { colors, sizes, promoOffers } = productVariants;
 
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-
-  const promoOffers = [
-    { icon: Truck, text: "Gratis Ongkir ke Jakarta" },
-    { icon: CreditCard, text: "Cicilan 0% 3x dengan Kartu Kredit BCA" },
-    { icon: RefreshCw, text: "Bebas Return 30 Hari" },
-    { icon: Shield, text: "Garansi 100% Original" },
-  ];
+  // Helper function untuk mapping icon names ke components
+  const getIconComponent = (iconName) => {
+    const icons = {
+      Truck: Truck,
+      CreditCard: CreditCard,
+      RefreshCw: RefreshCw,
+      Shield: Shield
+    };
+    return icons[iconName] || Truck;
+  };
 
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
@@ -200,7 +198,7 @@ export default function ProductInfo({ product }) {
         <h3 className="font-semibold text-gray-900">Promo & Penawaran Khusus</h3>
         <div className="space-y-2">
           {promoOffers.map((offer, index) => {
-            const IconComponent = offer.icon;
+            const IconComponent = getIconComponent(offer.icon);
             return (
               <div key={index} className="flex items-center space-x-3 text-sm">
                 <IconComponent className="w-5 h-5 text-green-600" />
