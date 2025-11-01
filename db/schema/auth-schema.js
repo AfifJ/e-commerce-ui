@@ -4,23 +4,10 @@ import {
   text,
   timestamp,
   boolean,
-  json,
+  mysqlEnum,
 } from "drizzle-orm/mysql-core";
 
-// Table: roles
-export const roles = mysqlTable("roles", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  name: varchar("name", { length: 50 }).notNull().unique(),
-  description: text("description"),
-  permissions: json("permissions"),
-  createdAt: timestamp("created_at", { fsp: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { fsp: 3 })
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
-
-// Table: users (Updated for Bahana UMKM)
+// Table: users (Updated for Bahana UMKM with enum role)
 export const users = mysqlTable("users", {
   id: varchar("id", { length: 36 }).primaryKey(),
   username: varchar("username", { length: 100 }).notNull().unique(),
@@ -31,7 +18,7 @@ export const users = mysqlTable("users", {
   phoneVerified: boolean("phone_verified").default(false).notNull(),
   verificationCode: varchar("verification_code", { length: 10 }),
   image: text("image"), // avatar_url
-  roleId: varchar("role_id", { length: 36 }).references(() => roles.id),
+  role: mysqlEnum("role", ["admin", "vendor", "sales", "mitra", "customer"]).notNull().default("customer"),
   isActive: boolean("is_active").default(true),
   lastLogin: timestamp("last_login", { fsp: 3 }),
   currentHotelId: varchar("current_hotel_id", { length: 36 }),

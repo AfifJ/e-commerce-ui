@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { User, LogIn, Package, Heart, Settings, LogOut, CheckCircle, Shield } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/stores/auth-store";
+import { LogoutModal } from "@/components/shared/logout-modal";
 
 // User account dropdown menu
 export default function UserMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Show loading state
   if (isLoading) {
@@ -62,102 +65,119 @@ export default function UserMenu() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      setShowLogoutModal(false);
+    }
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex items-center space-x-2">
-          <User className="w-4 h-4" />
-          <span className="hidden sm:inline">
-            {user?.name?.split(' ')[0] || 'Akun'}
-          </span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        {/* User Info Header */}
-        <div className="px-2 py-3 border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {user?.name || 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </p>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="flex items-center space-x-2">
+            <User className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {user?.name?.split(' ')[0] || 'Akun'}
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          {/* User Info Header */}
+          <div className="px-2 py-3 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">
+                    {user?.name || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
               </div>
             </div>
+            {/* Role Badge */}
+            <div className="mt-2 flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(user?.role)}`}>
+                {getRoleDisplayName(user?.role)}
+                {user?.emailVerified && <CheckCircle className="w-3 h-3" />}
+              </span>
+            </div>
           </div>
-          {/* Role Badge */}
-          <div className="mt-2 flex items-center gap-2">
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(user?.role)}`}>
-              {getRoleDisplayName(user?.role)}
-              {user?.emailVerified && <CheckCircle className="w-3 h-3" />}
-            </span>
+
+          {/* Menu Items */}
+          <div className="py-2">
+            <DropdownMenuItem asChild>
+              <Link href="/account/profile" className="flex items-center space-x-3">
+                <User className="w-4 h-4" />
+                <span>Profil Saya</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link href="/account/orders" className="flex items-center space-x-3">
+                <Package className="w-4 h-4" />
+                <span>Pesanan</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link href="/wishlist" className="flex items-center space-x-3">
+                <Heart className="w-4 h-4" />
+                <span>Wishlist</span>
+              </Link>
+            </DropdownMenuItem>
+
+            {/* Admin Portal Link - Only for admin users */}
+            {user?.role === 'admin' && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/dashboard" className="flex items-center space-x-3 text-red-600 hover:text-red-700">
+                    <Shield className="w-4 h-4" />
+                    <span>Admin Portal</span>
+                  </Link>
+                </DropdownMenuItem>
+              </>
+            )}
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem asChild>
+              <Link href="/account/settings" className="flex items-center space-x-3">
+                <Settings className="w-4 h-4" />
+                <span>Pengaturan</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              className="flex items-center space-x-3 text-red-600 focus:text-red-600"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Keluar</span>
+            </DropdownMenuItem>
           </div>
-        </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-        {/* Menu Items */}
-        <div className="py-2">
-          <DropdownMenuItem asChild>
-            <Link href="/account/profile" className="flex items-center space-x-3">
-              <User className="w-4 h-4" />
-              <span>Profil Saya</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem asChild>
-            <Link href="/account/orders" className="flex items-center space-x-3">
-              <Package className="w-4 h-4" />
-              <span>Pesanan</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem asChild>
-            <Link href="/wishlist" className="flex items-center space-x-3">
-              <Heart className="w-4 h-4" />
-              <span>Wishlist</span>
-            </Link>
-          </DropdownMenuItem>
-
-          {/* Admin Portal Link - Only for admin users */}
-          {user?.role === 'admin' && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/admin/dashboard" className="flex items-center space-x-3 text-red-600 hover:text-red-700">
-                  <Shield className="w-4 h-4" />
-                  <span>Admin Portal</span>
-                </Link>
-              </DropdownMenuItem>
-            </>
-          )}
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem asChild>
-            <Link href="/account/settings" className="flex items-center space-x-3">
-              <Settings className="w-4 h-4" />
-              <span>Pengaturan</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem
-            className="flex items-center space-x-3 text-red-600 focus:text-red-600"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Keluar</span>
-          </DropdownMenuItem>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onOpenChange={setShowLogoutModal}
+        onLogout={handleConfirmLogout}
+        isLoading={isLoading}
+      />
+    </>
   );
 }

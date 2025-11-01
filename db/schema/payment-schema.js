@@ -6,6 +6,7 @@ import {
   boolean,
   mysqlEnum,
   json,
+  int,
 } from "drizzle-orm/mysql-core";
 import { users } from "./auth-schema";
 

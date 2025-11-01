@@ -2,6 +2,12 @@ import { z } from 'zod'
 
 // Schema untuk register form
 export const registerSchema = z.object({
+  username: z
+    .string()
+    .min(1, 'Username wajib diisi')
+    .min(3, 'Username minimal 3 karakter')
+    .max(20, 'Username maksimal 20 karakter')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username hanya boleh mengandung huruf, angka, dan underscore'),
   name: z
     .string()
     .min(1, 'Nama wajib diisi')

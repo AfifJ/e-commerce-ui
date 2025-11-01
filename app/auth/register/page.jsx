@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: "",
       name: "",
       email: "",
       phone: "",
@@ -55,6 +56,7 @@ export default function RegisterPage() {
   const onSubmit = async (data) => {
     try {
       const result = await register({
+        username: data.username,
         name: data.name,
         email: data.email,
         phone: data.phone,
@@ -115,6 +117,14 @@ export default function RegisterPage() {
 
         {/* Form Fields */}
         <div className="space-y-4">
+          <FormInput
+            label="Username"
+            type="text"
+            {...form.register('username')}
+            error={form.formState.errors.username?.message}
+            placeholder="john_doe"
+            disabled={isLoading}
+          />
           <FormInput
             label="Nama Lengkap"
             type="text"

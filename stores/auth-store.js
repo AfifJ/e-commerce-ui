@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { authClient } from "@/lib/auth-client";
+import { formatUserWithRole } from "@/lib/role-utils";
+import { toast } from "sonner";
 
 export const useAuthStore = create(
   persist(
@@ -22,7 +24,7 @@ export const useAuthStore = create(
 
       setUser: (user) =>
         set({
-          user,
+          user: formatUserWithRole(user),
           isAuthenticated: !!user,
           error: null
         }),
@@ -36,7 +38,7 @@ export const useAuthStore = create(
 
           if (session.data) {
             set({
-              user: session.data.user,
+              user: formatUserWithRole(session.data.user),
               isAuthenticated: true,
               isLoading: false
             });
@@ -74,14 +76,17 @@ export const useAuthStore = create(
               error: result.error.message,
               isLoading: false
             });
+            toast.error("Login gagal. " + result.error.message);
             return { success: false, error: result.error.message };
           }
 
           set({
-            user: result.data.user,
+            user: formatUserWithRole(result.data.user),
             isAuthenticated: true,
             isLoading: false
           });
+
+          toast.success("Login berhasil! Selamat datang kembali");
 
           return { success: true, data: result.data };
         } catch (err) {
@@ -91,6 +96,7 @@ export const useAuthStore = create(
             error: errorMessage,
             isLoading: false
           });
+          toast.error(errorMessage);
           return { success: false, error: errorMessage };
         }
       },
@@ -100,14 +106,14 @@ export const useAuthStore = create(
         try {
           set({ isLoading: true, error: null });
 
-          const { name, email, password, phone } = userData;
+          const { username, name, email, password, phone } = userData;
 
           const result = await authClient.signUp.email({
+            username,
             name,
             email,
             password,
             phone,
-            role: "buyer",
           });
 
           if (result.error) {
@@ -115,10 +121,12 @@ export const useAuthStore = create(
               error: result.error.message,
               isLoading: false
             });
+            toast.error("Registrasi gagal. " + result.error.message);
             return { success: false, error: result.error.message };
           }
 
           set({ isLoading: false });
+          toast.success("Registrasi berhasil! Silakan login untuk melanjutkan");
           return { success: true, data: result.data };
         } catch (err) {
           console.error("Registration failed:", err);
@@ -127,6 +135,7 @@ export const useAuthStore = create(
             error: errorMessage,
             isLoading: false
           });
+          toast.error(errorMessage);
           return { success: false, error: errorMessage };
         }
       },
@@ -144,14 +153,23 @@ export const useAuthStore = create(
             error: null
           });
 
+          // Show success toast
+          toast.success("Anda berhasil keluar dari akun");
+
           return { success: true };
         } catch (err) {
           console.error("Logout failed:", err);
+          const errorMessage = "Gagal keluar dari akun. Silakan coba lagi.";
+
           set({
-            error: err.message,
+            error: errorMessage,
             isLoading: false
           });
-          return { success: false, error: err.message };
+
+          // Show error toast
+          toast.error(errorMessage);
+
+          return { success: false, error: errorMessage };
         }
       },
 
@@ -176,7 +194,7 @@ export const useAuthStore = create(
             return "/sales/dashboard";
           case "mitra":
             return "/mitra/dashboard";
-          case "buyer":
+          case "customer":
           default:
             return "/account";
         }
@@ -218,7 +236,7 @@ export const useRoleAuth = (allowedRoles = []) => {
 
 export const useIsAdmin = () => useRoleAuth(['admin']);
 export const useIsVendor = () => useRoleAuth(['vendor']);
-export const useIsBuyer = () => useRoleAuth(['buyer']);
+export const useIsCustomer = () => useRoleAuth(['customer']);
 
 // Combined hook for convenience (similar to original useAuth)
 export function useAuth() {

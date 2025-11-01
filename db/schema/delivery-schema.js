@@ -4,9 +4,10 @@ import {
   text,
   timestamp,
   mysqlEnum,
+  int,
+  boolean,
 } from "drizzle-orm/mysql-core";
 import { users } from "./auth-schema";
-
 // Table: deliveries
 export const deliveries = mysqlTable("deliveries", {
   id: varchar("id", { length: 36 }).primaryKey(),
