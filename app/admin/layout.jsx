@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, startTransition } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -32,7 +32,6 @@ import {
   Tag,
   Archive,
   FileText,
-  Hotel,
   DollarSign,
   ShieldCheck,
   UserCog,
@@ -43,7 +42,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { canAccessAdmin } from "@/lib/role-utils";
 import { useAuth } from "@/stores/auth-store";
+import { useSidebarStore } from "@/stores/sidebar-store";
 import { LogoutModal } from "@/components/shared/logout-modal";
+import { Handshake } from "lucide-react";
+import { Toaster } from "sonner";
 
 // Navigation items based on role
 const navigationItems = [
@@ -64,9 +66,9 @@ const navigationItems = [
         icon: UserCog
       },
       {
-        title: "Mitra Hotel",
-        href: "/admin/hotels",
-        icon: Hotel
+        title: "Mitra",
+        href: "/admin/mitra",
+        icon: Handshake
       },
       {
         title: "Sales",
@@ -150,9 +152,9 @@ const navigationItems = [
         icon: FileText
       },
       {
-        title: "Komisi Hotel",
-        href: "/admin/reports/hotel-commissions",
-        icon: Hotel
+        title: "Komisi Mitra",
+        href: "/admin/reports/mitra-commissions",
+        icon: Handshake
       }
     ]
   },
@@ -165,7 +167,8 @@ const navigationItems = [
 ];
 
 // Sidebar component moved outside render function
-function SidebarContent({ user, expandedItems, toggleExpanded, isItemActive, hasPermission }) {
+function SidebarContent({ user, isItemActive, hasPermission }) {
+  const { expandedItems, toggleExpanded, isExpanded } = useSidebarStore();
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
@@ -188,7 +191,7 @@ function SidebarContent({ user, expandedItems, toggleExpanded, isItemActive, has
             if (!hasPermission(item.roles)) return null;
 
             if (item.items) {
-              const isExpanded = expandedItems.includes(item.title);
+              const isExpandedItem = isExpanded(item.title);
               const hasActiveChild = item.items.some(child => isItemActive(child.href));
 
               return (
@@ -203,13 +206,13 @@ function SidebarContent({ user, expandedItems, toggleExpanded, isItemActive, has
                   >
                     <item.icon className="h-4 w-4" />
                     <span className="flex-1 text-left">{item.title}</span>
-                    {isExpanded ? (
+                    {isExpandedItem ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
                   </Button>
-                  {isExpanded && (
+                  {isExpandedItem && (
                     <div className="ml-6 mt-1 space-y-1">
                       {item.items.map((subItem) => {
                         if (!hasPermission(subItem.roles || ["all"])) return null;
@@ -259,10 +262,10 @@ function SidebarContent({ user, expandedItems, toggleExpanded, isItemActive, has
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedItems, setExpandedItems] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
   const { logout, isLoading } = useAuth();
+  const { expandedItems, setExpandedItems } = useSidebarStore();
 
   // Mock user data - replace with actual auth
   const user = {
@@ -271,131 +274,38 @@ export default function AdminLayout({ children }) {
     avatar: null
   };
 
-  // Auto-expand submenu when child item is active
+  // Auto-expand submenu when child item is active, but preserve existing expanded items
   useEffect(() => {
-    const navigationItems = [
-      {
-        title: "Dashboard",
-        href: "/admin/dashboard",
-        roles: ["all"]
-      },
-      {
-        title: "Manajemen Pengguna",
-        roles: ["admin"],
-        items: [
-          {
-            title: "Users Management",
-            href: "/admin/users",
-          },
-          {
-            title: "Mitra Hotel",
-            href: "/admin/hotels",
-          },
-          {
-            title: "Sales",
-            href: "/admin/sales",
-          },
-          {
-            title: "Daftar Vendor",
-            href: "/admin/vendors",
-          }
-        ]
-      },
-      {
-        title: "Katalog Produk",
-        roles: ["admin", "vendor"],
-        items: [
-          {
-            title: "Semua Produk",
-            href: "/admin/products",
-          },
-          {
-            title: "Kategori",
-            href: "/admin/categories",
-          },
-          {
-            title: "Inventory",
-            href: "/admin/inventory",
-          }
-        ]
-      },
-      {
-        title: "Operasional",
-        roles: ["admin", "vendor", "sales"],
-        items: [
-          {
-            title: "Pesanan",
-            href: "/admin/orders",
-          },
-          {
-            title: "Peminjaman",
-            href: "/admin/borrows",
-          },
-          {
-            title: "Pembayaran",
-            href: "/admin/payments",
-          },
-          {
-            title: "Pengiriman",
-            href: "/admin/deliveries",
-          }
-        ]
-      },
-      {
-        title: "Laporan & Komisi",
-        roles: ["admin", "vendor", "sales", "mitra"],
-        items: [
-          {
-            title: "Laporan Penjualan",
-            href: "/admin/reports/sales",
-          },
-          {
-            title: "Pembayaran Vendor",
-            href: "/admin/reports/vendor-payments",
-          },
-          {
-            title: "Laporan Komisi",
-            href: "/admin/reports/commissions",
-          },
-          {
-            title: "Komisi Hotel",
-            href: "/admin/reports/hotel-commissions",
-          }
-        ]
-      },
-      {
-        title: "Pengaturan",
-        href: "/admin/settings",
-        roles: ["admin"]
-      }
-    ];
+    // Get current expanded items from store
+    const currentExpanded = expandedItems;
+    const activeExpandedItems = [];
 
-    const newExpandedItems = [];
-
+    // Find items that should be expanded based on current route
     navigationItems.forEach(item => {
       if (item.items && item.items.length > 0) {
         const hasActiveChild = item.items.some(child =>
           pathname === child.href || pathname.startsWith(child.href + "/")
         );
         if (hasActiveChild) {
-          newExpandedItems.push(item.title);
+          activeExpandedItems.push(item.title);
         }
       }
     });
 
-    startTransition(() => {
-      setExpandedItems(newExpandedItems);
-    });
-  }, [pathname]);
+    // Combine: preserve manual expansions + add active expansions
+    const finalExpandedItems = Array.from(new Set([
+      ...currentExpanded,
+      ...activeExpandedItems
+    ]));
 
-  const toggleExpanded = (title) => {
-    setExpandedItems(prev =>
-      prev.includes(title)
-        ? prev.filter(item => item !== title)
-        : [...prev, title]
-    );
-  };
+    // Only update if different
+    if (finalExpandedItems.length !== currentExpanded.length ||
+        !finalExpandedItems.every(item => currentExpanded.includes(item))) {
+      setExpandedItems(finalExpandedItems);
+    }
+  }, [pathname, expandedItems, setExpandedItems]);
 
+  
   const isItemActive = (href) => {
     return pathname === href || pathname.startsWith(href + "/");
   };
@@ -434,8 +344,6 @@ export default function AdminLayout({ children }) {
       >
         <SidebarContent
           user={user}
-          expandedItems={expandedItems}
-          toggleExpanded={toggleExpanded}
           isItemActive={isItemActive}
           hasPermission={hasPermission}
         />
@@ -485,10 +393,19 @@ export default function AdminLayout({ children }) {
                   </div>
                   <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                     {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="h-full w-full rounded-full object-cover" />
-                    ) : (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="h-full w-full rounded-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div style={{display: user.avatar ? 'none' : 'flex'}}>
                       <User className="h-4 w-4 text-gray-600" />
-                    )}
+                    </div>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -558,6 +475,9 @@ export default function AdminLayout({ children }) {
         onLogout={handleConfirmLogout}
         isLoading={isLoading}
       />
+
+      {/* Toast Notifications */}
+      <Toaster />
     </div>
   );
 }

@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/app/admin/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Folder,
+  X,
+  Save,
+  Image,
+  Package,
+  AlertCircle,
+  Loader2,
+  Calendar,
+  BarChart3,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,315 +25,483 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  Tag,
-  Package,
-  TrendingUp,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Image as ImageIcon,
-} from "lucide-react";
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "./actions";
+import { toast } from "sonner";
 
-// Mock data
-const mockCategories = [
-  {
-    id: "cat_001",
-    name: "Elektronik",
-    slug: "elektronik",
-    description: "Produk elektronik dan gadget terbaru",
-    status: "active",
-    totalProducts: 156,
-    activeProducts: 142,
-    parentCategory: null,
-    subcategories: ["Smartphone", "Laptop", "TV", "Audio"],
-    image: "/images/categories/elektronik.jpg",
-    featured: true,
-    sortOrder: 1,
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (category) => console.log("View", category) },
-      { label: "Edit Category", icon: Edit, onClick: (category) => console.log("Edit", category) },
-      { label: "Delete", icon: Trash2, onClick: (category) => console.log("Delete", category), destructive: true }
-    ]
-  },
-  {
-    id: "cat_002",
-    name: "Fashion",
-    slug: "fashion",
-    description: "Pakaian dan aksesoris fashion terkini",
-    status: "active",
-    totalProducts: 234,
-    activeProducts: 220,
-    parentCategory: null,
-    subcategories: ["Pria", "Wanita", "Anak", "Aksesoris"],
-    image: "/images/categories/fashion.jpg",
-    featured: true,
-    sortOrder: 2,
-    createdAt: "2024-01-02T00:00:00Z",
-    updatedAt: "2024-01-14T16:45:00Z",
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (category) => console.log("View", category) },
-      { label: "Edit Category", icon: Edit, onClick: (category) => console.log("Edit", category) },
-      { label: "Delete", icon: Trash2, onClick: (category) => console.log("Delete", category), destructive: true }
-    ]
-  },
-  {
-    id: "cat_003",
-    name: "Smartphone",
-    slug: "smartphone",
-    description: "Berbagai jenis smartphone dan aksesorisnya",
-    status: "active",
-    totalProducts: 89,
-    activeProducts: 85,
-    parentCategory: "Elektronik",
-    subcategories: ["Android", "iOS", "Aksesoris"],
-    image: "/images/categories/smartphone.jpg",
-    featured: false,
-    sortOrder: 3,
-    createdAt: "2024-01-03T00:00:00Z",
-    updatedAt: "2024-01-13T14:20:00Z",
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (category) => console.log("View", category) },
-      { label: "Edit Category", icon: Edit, onClick: (category) => console.log("Edit", category) },
-      { label: "Delete", icon: Trash2, onClick: (category) => console.log("Delete", category), destructive: true }
-    ]
-  },
-  {
-    id: "cat_004",
-    name: "Rumah Tangga",
-    slug: "rumah-tangga",
-    description: "Peralatan dan dekorasi rumah tangga",
-    status: "inactive",
-    totalProducts: 67,
-    activeProducts: 0,
-    parentCategory: null,
-    subcategories: ["Dapur", "Kamar Mandi", "Dekorasi"],
-    image: "/images/categories/rumah-tangga.jpg",
-    featured: false,
-    sortOrder: 4,
-    createdAt: "2024-01-04T00:00:00Z",
-    updatedAt: "2024-01-12T11:15:00Z",
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (category) => console.log("View", category) },
-      { label: "Edit Category", icon: Edit, onClick: (category) => console.log("Edit", category) },
-      { label: "Delete", icon: Trash2, onClick: (category) => console.log("Delete", category), destructive: true }
-    ]
-  }
-];
+function ViewCategoryModal({ category, isOpen, onClose }) {
+  if (!category) return null;
 
-const categoryStats = {
-  total: 4,
-  active: 3,
-  inactive: 1,
-  featured: 2,
-  totalProducts: 546,
-  activeProducts: 447,
-  parentCategories: 2,
-  subCategories: 2
-};
-
-function StatusBadge({ status }) {
-  const statusConfig = {
-    active: { color: "bg-green-100 text-green-800", icon: CheckCircle },
-    inactive: { color: "bg-gray-100 text-gray-800", icon: XCircle }
+  const formatDate = (date) => {
+    if (!date) return 'Never';
+    return new Date(date).toLocaleString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  const config = statusConfig[status] || statusConfig.active;
-  const Icon = config.icon;
-
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-      <Icon className="w-3 h-3" />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Folder className="w-5 h-5" />
+            Category Details
+          </DialogTitle>
+          <DialogDescription>
+            Complete information about {category.name}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Category Basic Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Category Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-500">Category ID</Label>
+                <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{category.id}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-500">Status</Label>
+                <div className="mt-1">
+                  {category.isActive ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Active
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Inactive
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-500">Category Name</Label>
+              <p className="text-sm font-medium">{category.name}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-500">Slug</Label>
+              <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{category.slug}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-500">Description</Label>
+              <p className="text-sm whitespace-pre-wrap">{category.description || 'No description'}</p>
+            </div>
+          </div>
+
+          
+          {/* Statistics */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Statistics</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <Package className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-blue-900">{category.productCount || 0}</p>
+                <p className="text-xs text-blue-600">Products</p>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-purple-900">{category.sortOrder}</p>
+                <p className="text-xs text-purple-600">Sort Priority</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Category Image */}
+          {category.image && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Category Image</h3>
+              <div className="flex justify-center">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-32 h-32 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/150x150?text=Error';
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* System Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">System Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-500">Created At</Label>
+                <p className="text-sm flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-gray-400" />
+                  {formatDate(category.createdAt)}
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-500">Last Updated</Label>
+                <p className="text-sm flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-gray-400" />
+                  {formatDate(category.updatedAt)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function StatusBadge({ isActive }) {
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+      isActive
+        ? "bg-green-100 text-green-800"
+        : "bg-gray-100 text-gray-800"
+    }`}>
+      {isActive ? "Active" : "Inactive"}
     </span>
   );
 }
 
-function FeaturedBadge({ featured }) {
-  return featured ? (
-    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-      <TrendingUp className="w-3 h-3 mr-1" />
-      Featured
-    </Badge>
-  ) : null;
+function CategoryForm({ category, onSave, onCancel, isOpen }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    image: "",
+    isActive: true,
+    sortOrder: 0
+  });
+  const [slugError, setSlugError] = useState("");
+
+  // Update form data when category prop changes
+  useEffect(() => {
+    if (category) {
+      setFormData({
+        name: category.name || "",
+        description: category.description || "",
+        image: category.image || "",
+        isActive: category.isActive ?? true,
+        sortOrder: category.sortOrder || 0
+      });
+    } else {
+      // Reset form for new category
+      setFormData({
+        name: "",
+        description: "",
+        image: "",
+        isActive: true,
+        sortOrder: 0
+      });
+    }
+    setSlugError("");
+  }, [category]);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    setSlugError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate name
+    if (!formData.name.trim()) {
+      setSlugError("Category name is required");
+      return;
+    }
+
+    // Generate slug from name
+    const slug = formData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    onSave({
+      ...formData,
+      slug: category?.slug || slug, // Keep existing slug for updates
+      sortOrder: parseInt(formData.sortOrder) || 0
+    });
+  };
+
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onCancel}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {category ? "Edit Category" : "Add New Category"}
+          </DialogTitle>
+          <DialogDescription>
+            {category ? "Update category information below." : "Create a new category for your products."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Category Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Enter category name"
+              required
+              className={slugError ? "border-red-500" : ""}
+            />
+            <p className="text-xs text-gray-500">Slug will be automatically generated from the category name</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Category description"
+              rows={3}
+            />
+          </div>
+
+                      <div className="space-y-2">
+            <Label htmlFor="sortOrder">Sort Order</Label>
+            <Input
+              id="sortOrder"
+              type="number"
+              min="0"
+              value={formData.sortOrder}
+              onChange={(e) => handleInputChange("sortOrder", parseInt(e.target.value) || 0)}
+              placeholder="0"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="image">Category Image URL</Label>
+            <Input
+              id="image"
+              value={formData.image}
+              onChange={(e) => handleInputChange("image", e.target.value)}
+              placeholder="Enter image URL (optional)"
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+            />
+            <Label htmlFor="isActive">Active</Label>
+          </div>
+
+          {slugError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{slugError}</AlertDescription>
+            </Alert>
+          )}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button type="submit">
+              <Save className="w-4 h-4 mr-2" />
+              {category ? "Update" : "Create"} Category
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export default function CategoriesPage() {
-  const [categories] = useState(mockCategories);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({});
+  const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [viewingCategory, setViewingCategory] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchCategories();
+      }, []);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getCategories();
+      if (result.success) {
+        // Add actions to each category
+        const categoriesWithActions = result.data.map(category => ({
+          ...category,
+          actions: [
+            { label: "View", icon: Eye, onClick: () => handleViewCategory(category) },
+            { label: "Edit", icon: Edit, onClick: () => handleEditCategory(category) },
+            { label: "Delete", icon: Trash2, onClick: () => handleDeleteCategory(category), destructive: true }
+          ]
+        }));
+        setCategories(categoriesWithActions);
+      } else {
+        toast.error(result.error || "Failed to fetch categories");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch categories");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  
+  const handleAddCategory = () => {
+    setEditingCategory(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setIsFormOpen(true);
+  };
+
+  const handleSaveCategory = async (categoryData) => {
+    let result;
+
+    if (editingCategory) {
+      // Update existing category
+      result = await updateCategory(editingCategory.id, categoryData);
+    } else {
+      // Add new category
+      result = await createCategory(categoryData);
+    }
+
+    if (result.success) {
+      await fetchCategories(); // Refresh the categories list
+            setIsFormOpen(false);
+      setEditingCategory(null);
+      toast.success(editingCategory ? "Category updated successfully" : "Category created successfully");
+    } else {
+      toast.error(result.error || "Failed to save category");
+    }
+  };
+
+  const handleCancelForm = () => {
+    setIsFormOpen(false);
+    setEditingCategory(null);
+  };
+
+  const handleDeleteCategory = async (category) => {
+    if (confirm(`Are you sure you want to delete category "${category.name}"?`)) {
+      try {
+        const result = await deleteCategory(category.id);
+        if (result.success) {
+          toast.success("Category deleted successfully");
+          await fetchCategories(); // Refresh the categories list
+                  } else {
+          toast.error(result.error || "Failed to delete category");
+        }
+      } catch (error) {
+        toast.error("Failed to delete category");
+      }
+    }
+  };
+
+  const handleViewCategory = (category) => {
+    setViewingCategory(category);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewingCategory(null);
+  };
 
   const columns = [
     {
       key: "name",
-      title: "Category Information",
-      sortable: true,
-      render: (value, row) => (
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <Tag className="w-5 h-5 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="font-medium">{value}</div>
-                <FeaturedBadge featured={row.featured} />
-              </div>
-              <div className="text-sm text-gray-500">/{row.slug}</div>
-              <div className="text-xs text-gray-400 line-clamp-2">{row.description}</div>
-            </div>
+      title: "Category",
+      render: (_, row) => (
+        <div className="flex items-center gap-3">
+          {row.image ? (
+            <img
+              src={row.image}
+              alt={row.name}
+              className="w-10 h-10 rounded-lg object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextElementSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center" style={{display: row.image ? 'none' : 'flex'}}>
+            <Folder className="w-5 h-5 text-gray-400" />
           </div>
-          {row.parentCategory && (
-            <div className="text-xs text-blue-600">
-              Parent: {row.parentCategory}
-            </div>
-          )}
+          <div>
+            <div className="font-medium">{row.name}</div>
+            <div className="text-sm text-gray-500 font-mono">{row.slug}</div>
+                      </div>
         </div>
       )
     },
     {
-      key: "status",
-      title: "Status",
-      sortable: true,
-      render: (value) => <StatusBadge status={value} />
-    },
-    {
-      key: "products",
+      key: "productCount",
       title: "Products",
-      sortable: true,
-      render: (value, row) => (
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm">
-            <Package className="w-3 h-3 text-gray-400" />
-            <span className="font-medium">{row.activeProducts}</span>
-            <span className="text-gray-500">/ {row.totalProducts}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-600 h-2 rounded-full"
-              style={{ width: `${(row.activeProducts / row.totalProducts) * 100}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-500">
-            {row.totalProducts > 0 ? ((row.activeProducts / row.totalProducts) * 100).toFixed(1) : 0}% active
-          </div>
-        </div>
-      )
-    },
-    {
-      key: "subcategories",
-      title: "Subcategories",
-      render: (value, row) => (
-        <div className="space-y-1">
-          <div className="text-sm font-medium">{row.subcategories.length} subcategories</div>
-          <div className="flex flex-wrap gap-1">
-            {row.subcategories.slice(0, 3).map((sub, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
-                {sub}
-              </Badge>
-            ))}
-            {row.subcategories.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{row.subcategories.length - 3} more
-              </Badge>
-            )}
-          </div>
+      render: (value) => (
+        <div className="text-sm">
+          <div className="font-medium">{value || 0}</div>
+          <div className="text-xs text-gray-500">products</div>
         </div>
       )
     },
     {
       key: "sortOrder",
-      title: "Sort Order",
-      sortable: true,
+      title: "Order",
       render: (value) => (
-        <div className="text-sm font-medium">#{value}</div>
-      )
-    },
-    {
-      key: "image",
-      title: "Image",
-      render: (value, row) => (
-        <div className="flex items-center gap-2">
-          {row.image ? (
-            <div className="w-8 h-8 rounded border overflow-hidden">
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <ImageIcon className="w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-          ) : (
-            <div className="w-8 h-8 rounded border border-dashed border-gray-300 flex items-center justify-center">
-              <ImageIcon className="w-4 h-4 text-gray-400" />
-            </div>
-          )}
+        <div className="text-sm font-medium text-center">
+          {value}
         </div>
       )
     },
     {
-      key: "updatedAt",
-      title: "Last Updated",
-      sortable: true,
+      key: "isActive",
+      title: "Status",
+      render: (value) => <StatusBadge isActive={value} />
+    },
+    {
+      key: "createdAt",
+      title: "Created",
       render: (value) => (
         <div className="text-sm">
-          {new Date(value).toLocaleDateString('id-ID')}
-          <div className="text-xs text-gray-500">
-            {new Date(value).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-          </div>
+          {value ? new Date(value).toLocaleString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          }) : 'Never'}
         </div>
       )
-    }
-  ];
-
-  const filterOptions = [
-    {
-      key: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { value: "all", label: "All Status" },
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" }
-      ]
-    },
-    {
-      key: "featured",
-      label: "Featured",
-      type: "select",
-      options: [
-        { value: "all", label: "All Categories" },
-        { value: "featured", label: "Featured Only" },
-        { value: "regular", label: "Regular Only" }
-      ]
-    },
-    {
-      key: "parent",
-      label: "Category Type",
-      type: "select",
-      options: [
-        { value: "all", label: "All Types" },
-        { value: "parent", label: "Parent Categories" },
-        { value: "sub", label: "Subcategories" }
-      ]
     }
   ];
 
@@ -330,176 +510,46 @@ export default function CategoriesPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Category Management</h1>
-          <p className="text-gray-500">Manage product categories and their hierarchy</p>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Folder className="w-6 h-6" />
+            Category Management
+          </h1>
+          <p className="text-gray-500">Manage product categories and hierarchy</p>
         </div>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Category
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add New Category</DialogTitle>
-              <DialogDescription>
-                Create a new product category.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="categoryName">Category Name</Label>
-                  <Input id="categoryName" placeholder="Enter category name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="slug">Slug</Label>
-                  <Input id="slug" placeholder="category-slug" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input id="description" placeholder="Enter category description" />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="parentCategory">Parent Category</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="None (Parent)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None (Parent Category)</SelectItem>
-                      <SelectItem value="elektronik">Elektronik</SelectItem>
-                      <SelectItem value="fashion">Fashion</SelectItem>
-                      <SelectItem value="rumah-tangga">Rumah Tangga</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sortOrder">Sort Order</Label>
-                  <Input id="sortOrder" type="number" placeholder="1" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="featured">Featured</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image">Category Image URL</Label>
-                <Input id="image" placeholder="/images/categories/category.jpg" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Create Category</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
-            <Tag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categoryStats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              All categories
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{categoryStats.active}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently active
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Featured</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{categoryStats.featured}</div>
-            <p className="text-xs text-muted-foreground">
-              Featured categories
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{categoryStats.activeProducts}</div>
-            <p className="text-xs text-muted-foreground">
-              Out of {categoryStats.totalProducts} total
-            </p>
-          </CardContent>
-        </Card>
+        <Button onClick={handleAddCategory} disabled={isLoading}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Category
+        </Button>
       </div>
 
       {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={categories}
-        searchKey="name"
-        filters={filterOptions}
-        searchable={true}
-        filterable={true}
-        selectable={true}
-        selectedRows={selectedCategories}
-        onSelectedRowsChange={setSelectedCategories}
-        pagination={{
-          total: categories.length,
-          page: 1,
-          pageSize: 10
-        }}
-        onSearch={setSearchTerm}
-        onFilter={(key, value) => {
-          setFilters(prev => ({ ...prev, [key]: value }));
-        }}
-        emptyMessage="No categories found"
-        actions={[
-          {
-            label: "Activate",
-            icon: CheckCircle,
-            onClick: (ids) => console.log("Activate", ids),
-            disabled: selectedCategories.length === 0
-          },
-          {
-            label: "Deactivate",
-            icon: XCircle,
-            onClick: (ids) => console.log("Deactivate", ids),
-            disabled: selectedCategories.length === 0
-          },
-          {
-            label: "Delete",
-            icon: Trash2,
-            onClick: (ids) => console.log("Delete", ids),
-            disabled: selectedCategories.length === 0,
-            destructive: true
-          }
-        ]}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+          <span className="ml-2 text-gray-600">Loading categories data...</span>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={categories}
+          searchable={true}
+          emptyMessage="No categories found"
+        />
+      )}
+
+      {/* Category Form Modal */}
+      <CategoryForm
+        category={editingCategory}
+        onSave={handleSaveCategory}
+        onCancel={handleCancelForm}
+        isOpen={isFormOpen}
+              />
+
+      {/* View Category Modal */}
+      <ViewCategoryModal
+        category={viewingCategory}
+        isOpen={isViewModalOpen}
+        onClose={handleCloseViewModal}
       />
     </div>
   );

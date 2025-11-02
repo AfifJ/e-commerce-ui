@@ -156,6 +156,9 @@ export const useAuthStore = create(
           // Show success toast
           toast.success("Anda berhasil keluar dari akun");
 
+          // Redirect to root path after successful logout
+          window.location.href = "/";
+
           return { success: true };
         } catch (err) {
           console.error("Logout failed:", err);

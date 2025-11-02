@@ -12,16 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  TrendingUp,
-  TrendingDown,
   DollarSign,
   Building,
   Calendar,
   Download,
-  BarChart3,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
   CheckCircle,
   Clock,
   Receipt,
@@ -29,21 +23,123 @@ import {
   Award,
   MapPin,
   Star,
-  BedDouble,
+  Handshake,
 } from "lucide-react";
 import { Target } from "lucide-react";
 
-// Mock data
-const mockHotelCommissionData = {
+// Mock data matching database schema
+const mockMitraCommissionPayments = [
+  {
+    id: "uuid-mcp-001",
+    userId: "uuid-mitra-001",
+    userType: "mitra",
+    userName: "PT. Mitra Sejahtera",
+    userEmail: "info@mitrasejahtera.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "5420000",
+    totalTransactions: 89,
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BCA 9999888877 a.n PT. Mitra Sejahtera",
+    paidAt: "2024-01-28T10:30:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Mitra commission for January 2024",
+    createdAt: "2024-01-25T00:00:00Z",
+    updatedAt: "2024-01-28T10:30:00Z"
+  },
+  {
+    id: "uuid-mcp-002",
+    userId: "uuid-mitra-002",
+    userType: "mitra",
+    userName: "CV. Karya Mandiri",
+    userEmail: "contact@karyamandiri.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "3890000",
+    totalTransactions: 67,
+    status: "processing",
+    paymentMethod: "transfer",
+    bankAccount: "Mandiri 6666555544 a.n CV. Karya Mandiri",
+    paidAt: null,
+    processedBy: null,
+    processedByName: null,
+    notes: "Mitra commission for January 2024 - processing",
+    createdAt: "2024-01-25T00:00:00Z",
+    updatedAt: "2024-01-27T14:20:00Z"
+  },
+  {
+    id: "uuid-mcp-003",
+    userId: "uuid-mitra-003",
+    userType: "mitra",
+    userName: "UD. Berkah Jaya",
+    userEmail: "ud.berkahjaya@gmail.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalCommission: "4670000",
+    totalTransactions: 103,
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BRI 3333222211 a.n UD. Berkah Jaya",
+    paidAt: "2024-01-10T15:45:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Mitra commission for December 2023",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-10T15:45:00Z"
+  },
+  {
+    id: "uuid-mcp-004",
+    userId: "uuid-mitra-001",
+    userType: "mitra",
+    userName: "PT. Mitra Sejahtera",
+    userEmail: "info@mitrasejahtera.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalCommission: "6230000",
+    totalTransactions: 125,
+    status: "cancelled",
+    paymentMethod: "transfer",
+    bankAccount: "BCA 9999888877 a.n PT. Mitra Sejahtera",
+    paidAt: null,
+    processedBy: "uuid-admin-002",
+    processedByName: "Admin Two",
+    notes: "Cancelled due to non-compliance",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-05T09:15:00Z"
+  },
+  {
+    id: "uuid-mcp-005",
+    userId: "uuid-mitra-004",
+    userType: "mitra",
+    userName: "PT. Partner Bisnis",
+    userEmail: "hello@partnerbisnis.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "2150000",
+    totalTransactions: 34,
+    status: "pending",
+    paymentMethod: null,
+    bankAccount: "BNI 2222111100 a.n PT. Partner Bisnis",
+    paidAt: null,
+    processedBy: null,
+    processedByName: null,
+    notes: "New mitra commission pending approval",
+    createdAt: "2024-01-27T00:00:00Z",
+    updatedAt: "2024-01-27T00:00:00Z"
+  }
+];
+
+// Summary data
+const mockMitraCommissionData = {
   summary: {
     totalCommissionPaid: 234500000,
     totalCommissionEarned: 267800000,
     pendingCommission: 33300000,
     totalBookingsGenerated: 1256,
     totalRevenueGenerated: 8934000000,
-    averageCommissionRate: 3.0,
-    commissionGrowthRate: 35.2,
-    bookingGrowthRate: 28.7
+    averageCommissionRate: 3.0
   },
   commissionsByPeriod: [
     {
@@ -119,9 +215,9 @@ const mockHotelCommissionData = {
       rate: 3.1
     }
   ],
-  topHotels: [
+  topMitra: [
     {
-      id: "HTL-001",
+      id: "MTR-001",
       name: "Hotel Maju Jaya",
       chain: "Independent",
       location: "Jakarta Pusat",
@@ -133,13 +229,13 @@ const mockHotelCommissionData = {
       commissionRate: 3.0,
       averageRoomRate: 7910256,
       performanceRating: "Excellent",
-      growthRate: 42.5,
       lastCommissionDate: "2024-08-25T14:30:00Z",
       totalRooms: 120,
-      occupancyRate: 78.5
+      occupancyRate: 78.5,
+      mitraType: "hotel"
     },
     {
-      id: "HTL-002",
+      id: "MTR-002",
       name: "Hotel Melati Indah",
       chain: "Local Chain",
       location: "Jakarta Selatan",
@@ -151,14 +247,14 @@ const mockHotelCommissionData = {
       commissionRate: 3.0,
       averageRoomRate: 6537313,
       performanceRating: "Excellent",
-      growthRate: 38.2,
       lastCommissionDate: "2024-08-24T10:15:00Z",
       totalRooms: 80,
-      occupancyRate: 82.3
+      occupancyRate: 82.3,
+      mitraType: "hotel"
     },
     {
-      id: "HTL-003",
-      name: "Hotel Berkah",
+      id: "MTR-003",
+      name: "Restaurant Berkah",
       chain: "Independent",
       location: "Jakarta Barat",
       starRating: 3,
@@ -169,13 +265,13 @@ const mockHotelCommissionData = {
       commissionRate: 3.0,
       averageRoomRate: 6244897,
       performanceRating: "Good",
-      growthRate: 28.7,
       lastCommissionDate: "2024-08-23T16:45:00Z",
       totalRooms: 60,
-      occupancyRate: 75.8
+      occupancyRate: 75.8,
+      mitraType: "restaurant"
     },
     {
-      id: "HTL-004",
+      id: "MTR-004",
       name: "Grand Palace Hotel",
       chain: "International Chain",
       location: "Jakarta Pusat",
@@ -187,14 +283,14 @@ const mockHotelCommissionData = {
       commissionRate: 3.0,
       averageRoomRate: 1760674,
       performanceRating: "Excellent",
-      growthRate: 45.8,
       lastCommissionDate: "2024-08-22T09:30:00Z",
       totalRooms: 200,
-      occupancyRate: 85.2
+      occupancyRate: 85.2,
+      mitraType: "hotel"
     },
     {
-      id: "HTL-005",
-      name: "Hotel Budget 88",
+      id: "MTR-005",
+      name: "Travel Wisata Nusantara",
       chain: "Budget Chain",
       location: "Jakarta Timur",
       starRating: 2,
@@ -205,113 +301,104 @@ const mockHotelCommissionData = {
       commissionRate: 3.0,
       averageRoomRate: 2000000,
       performanceRating: "Good",
-      growthRate: 22.3,
       lastCommissionDate: "2024-08-20T11:20:00Z",
       totalRooms: 40,
-      occupancyRate: 88.9
+      occupancyRate: 88.9,
+      mitraType: "travel"
     }
   ],
   commissionsByChain: [
     {
       chain: "International Chain",
-      hotels: 8,
+      mitra: 8,
       totalBookings: 456,
       totalRevenue: 3456000000,
       totalCommission: 103680000,
       averageRate: 3.0,
       pendingCommission: 8900000,
-      growthRate: 42.3,
-      topHotel: "Grand Palace Hotel"
+      topMitra: "Grand Palace Hotel"
     },
     {
       chain: "Local Chain",
-      hotels: 15,
+      mitra: 15,
       totalBookings: 523,
       totalRevenue: 2876000000,
       totalCommission: 86280000,
       averageRate: 3.0,
       pendingCommission: 12800000,
-      growthRate: 35.8,
-      topHotel: "Hotel Melati Indah"
+      topMitra: "Hotel Melati Indah"
     },
     {
       chain: "Independent",
-      hotels: 22,
+      mitra: 22,
       totalBookings: 277,
       totalRevenue: 1602000000,
       totalCommission: 48060000,
       averageRate: 3.0,
       pendingCommission: 11600000,
-      growthRate: 28.5,
-      topHotel: "Hotel Maju Jaya"
+      topMitra: "Hotel Maju Jaya"
     },
     {
       chain: "Budget Chain",
-      hotels: 6,
+      mitra: 6,
       totalBookings: 189,
       totalRevenue: 756000000,
       totalCommission: 22680000,
       averageRate: 3.0,
       pendingCommission: 3200000,
-      growthRate: 18.7,
-      topHotel: "Hotel Budget 88"
+      topMitra: "Travel Wisata Nusantara"
     }
   ],
   commissionsByLocation: [
     {
       location: "Jakarta Pusat",
-      hotels: 12,
+      mitra: 12,
       totalBookings: 445,
       totalRevenue: 4234000000,
       totalCommission: 127020000,
       averageRate: 3.0,
       pendingCommission: 15600000,
-      growthRate: 45.2,
-      topHotel: "Grand Palace Hotel"
+      topMitra: "Grand Palace Hotel"
     },
     {
       location: "Jakarta Selatan",
-      hotels: 18,
+      mitra: 18,
       totalBookings: 389,
       totalRevenue: 2678000000,
       totalCommission: 80340000,
       averageRate: 3.0,
       pendingCommission: 8900000,
-      growthRate: 32.8,
-      topHotel: "Hotel Melati Indah"
+      topMitra: "Hotel Melati Indah"
     },
     {
       location: "Jakarta Barat",
-      hotels: 10,
+      mitra: 10,
       totalBookings: 267,
       totalRevenue: 1234000000,
       totalCommission: 37020000,
       averageRate: 3.0,
       pendingCommission: 5600000,
-      growthRate: 25.3,
-      topHotel: "Hotel Berkah"
+      topMitra: "Restaurant Berkah"
     },
     {
       location: "Jakarta Timur",
-      hotels: 8,
+      mitra: 8,
       totalBookings: 134,
       totalRevenue: 678000000,
       totalCommission: 20340000,
       averageRate: 3.0,
       pendingCommission: 2800000,
-      growthRate: 18.5,
-      topHotel: "Hotel Budget 88"
+      topMitra: "Travel Wisata Nusantara"
     },
     {
       location: "Jakarta Utara",
-      hotels: 3,
+      mitra: 3,
       totalBookings: 21,
       totalRevenue: 116000000,
       totalCommission: 3480000,
       averageRate: 3.0,
       pendingCommission: 400000,
-      growthRate: 8.2,
-      topHotel: "Hotel Utama"
+      topMitra: "Mitra Utama"
     }
   ],
   commissionStatus: [
@@ -319,22 +406,20 @@ const mockHotelCommissionData = {
       status: "Paid",
       count: 1098,
       amount: 234500000,
-      percentage: 87.6,
-      trend: "up"
+      percentage: 87.6
     },
     {
       status: "Pending",
       count: 158,
       amount: 33300000,
-      percentage: 12.4,
-      trend: "stable"
+      percentage: 12.4
     }
   ],
   recentCommissions: [
     {
-      id: "HTL-COM-2024-001",
-      hotelId: "HTL-001",
-      hotelName: "Hotel Maju Jaya",
+      id: "MTR-COM-2024-001",
+      mitraId: "MTR-001",
+      mitraName: "Hotel Maju Jaya",
       bookingId: "BKG-2024-089",
       amount: 14500000,
       bookingRevenue: 483333333,
@@ -343,7 +428,7 @@ const mockHotelCommissionData = {
       paymentDate: "2024-08-25T14:30:00Z",
       dueDate: "2024-08-25T23:59:59Z",
       paymentMethod: "Transfer Bank",
-      referenceNumber: "TRF-HTL-2024082501",
+      referenceNumber: "TRF-MTR-2024082501",
       checkInDate: "2024-08-20",
       checkOutDate: "2024-08-23",
       roomType: "Deluxe",
@@ -351,9 +436,9 @@ const mockHotelCommissionData = {
       notes: "Commission for August bookings"
     },
     {
-      id: "HTL-COM-2024-002",
-      hotelId: "HTL-002",
-      hotelName: "Hotel Melati Indah",
+      id: "MTR-COM-2024-002",
+      mitraId: "MTR-002",
+      mitraName: "Hotel Melati Indah",
       bookingId: "BKG-2024-156",
       amount: 8900000,
       bookingRevenue: 296666666,
@@ -370,9 +455,9 @@ const mockHotelCommissionData = {
       notes: "Monthly commission processing"
     },
     {
-      id: "HTL-COM-2024-003",
-      hotelId: "HTL-004",
-      hotelName: "Grand Palace Hotel",
+      id: "MTR-COM-2024-003",
+      mitraId: "MTR-004",
+      mitraName: "Grand Palace Hotel",
       bookingId: "BKG-2024-134",
       amount: 6700000,
       bookingRevenue: 223333333,
@@ -381,7 +466,7 @@ const mockHotelCommissionData = {
       paymentDate: "2024-08-24T09:30:00Z",
       dueDate: "2024-08-24T23:59:59Z",
       paymentMethod: "Transfer Bank",
-      referenceNumber: "TRF-HTL-2024082401",
+      referenceNumber: "TRF-MTR-2024082401",
       checkInDate: "2024-08-15",
       checkOutDate: "2024-08-17",
       roomType: "Executive Suite",
@@ -391,8 +476,7 @@ const mockHotelCommissionData = {
   ]
 };
 
-function MetricCard({ title, value, change, changeType, icon, subtitle }) {
-  const isPositive = changeType === "positive";
+function MetricCard({ title, value, icon, subtitle }) {
   const Icon = icon;
 
   return (
@@ -403,17 +487,9 @@ function MetricCard({ title, value, change, changeType, icon, subtitle }) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {change && (
-          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-            {isPositive ? (
-              <ArrowUpRight className="h-3 w-3 text-green-600" />
-            ) : (
-              <ArrowDownRight className="h-3 w-3 text-red-600" />
-            )}
-            <span className={isPositive ? "text-green-600" : "text-red-600"}>
-              {Math.abs(change)}%
-            </span>
-            <span>{subtitle}</span>
+        {subtitle && (
+          <div className="text-xs text-muted-foreground">
+            {subtitle}
           </div>
         )}
       </CardContent>
@@ -440,7 +516,7 @@ function PerformanceBadge({ rating }) {
   const ratingConfig = {
     Excellent: { color: "bg-green-100 text-green-800", icon: Award },
     Good: { color: "bg-blue-100 text-blue-800", icon: Target },
-    Average: { color: "bg-yellow-100 text-yellow-800", icon: Activity }
+    Average: { color: "bg-yellow-100 text-yellow-800", icon: Target }
   };
 
   const config = ratingConfig[rating] || ratingConfig.Average;
@@ -471,25 +547,8 @@ function CommissionStatusBadge({ status }) {
   );
 }
 
-function GrowthIndicator({ value, label }) {
-  const isPositive = value > 0;
 
-  return (
-    <div className="flex items-center gap-1">
-      {isPositive ? (
-        <TrendingUp className="w-4 h-4 text-green-600" />
-      ) : (
-        <TrendingDown className="w-4 h-4 text-red-600" />
-      )}
-      <span className={`text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {Math.abs(value).toFixed(1)}%
-      </span>
-      <span className="text-sm text-gray-500">{label}</span>
-    </div>
-  );
-}
-
-export default function HotelCommissionReportsPage() {
+export default function MitraCommissionReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("this-month");
   const [selectedChain, setSelectedChain] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -497,7 +556,7 @@ export default function HotelCommissionReportsPage() {
   const [selectedCommission, setSelectedCommission] = useState(null);
 
   const handleExportReport = (format) => {
-    console.log(`Exporting hotel commission report in ${format} format`);
+    console.log(`Exporting mitra commission report in ${format} format`);
     // Implement export functionality
   };
 
@@ -507,7 +566,7 @@ export default function HotelCommissionReportsPage() {
   };
 
   const processCommissionPayment = (commissionId) => {
-    console.log(`Processing hotel commission payment: ${commissionId}`);
+    console.log(`Processing mitra commission payment: ${commissionId}`);
     // Implement commission payment processing
   };
 
@@ -516,8 +575,11 @@ export default function HotelCommissionReportsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Laporan Komisi Hotel</h1>
-          <p className="text-gray-500">Analisis komprehensif komisi dari mitra hotel</p>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Handshake className="w-6 h-6" />
+            Laporan Komisi Mitra
+          </h1>
+          <p className="text-gray-500">Analisis komprehensif komisi dari mitra bisnis</p>
         </div>
         <div className="flex gap-2">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -543,98 +605,68 @@ export default function HotelCommissionReportsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Total Komisi Hotel"
-          value={`Rp ${(mockHotelCommissionData.summary.totalCommissionPaid / 1000000).toFixed(0)}M`}
-          change={mockHotelCommissionData.summary.commissionGrowthRate}
-          changeType="positive"
+          title="Total Komisi Mitra"
+          value={`Rp ${(mockMitraCommissionData.summary.totalCommissionPaid / 1000000).toFixed(0)}M`}
           icon={DollarSign}
-          subtitle="dari bulan lalu"
+          subtitle="total komisi"
         />
         <MetricCard
           title="Total Booking Generate"
-          value={mockHotelCommissionData.summary.totalBookingsGenerated.toLocaleString('id-ID')}
-          change={mockHotelCommissionData.summary.bookingGrowthRate}
-          changeType="positive"
+          value={mockMitraCommissionData.summary.totalBookingsGenerated.toLocaleString('id-ID')}
           icon={Calendar}
           subtitle="pemesanan"
         />
         <MetricCard
-          title="Total Revenue Hotel"
-          value={`Rp ${(mockHotelCommissionData.summary.totalRevenueGenerated / 1000000000).toFixed(1)}B`}
-          change={25.8}
-          changeType="positive"
+          title="Total Revenue Mitra"
+          value={`Rp ${(mockMitraCommissionData.summary.totalRevenueGenerated / 1000000000).toFixed(1)}B`}
           icon={Building}
           subtitle="nilai pemesanan"
         />
         <MetricCard
           title="Rata-rata Rate Komisi"
-          value={`${mockHotelCommissionData.summary.averageCommissionRate}%`}
-          changeType="neutral"
+          value={`${mockMitraCommissionData.summary.averageCommissionRate}%`}
           icon={Percent}
-          subtitle="dari semua hotel"
+          subtitle="dari semua mitra"
         />
       </div>
 
-      {/* Commission Trend Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
-            Tren Komisi Hotel
-          </CardTitle>
-          <CardDescription>
-            Perkembangan komisi hotel dan pemesanan per bulan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <BarChart3 className="w-12 h-12 text-orange-600 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">Grafik Tren Komisi Hotel</p>
-              <p className="text-sm text-gray-500">
-                Total komisi tumbuh {mockHotelCommissionData.summary.commissionGrowthRate}% MoM
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+    
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Hotels */}
+        {/* Top Mitra */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building className="w-5 h-5" />
-              Hotel Teratas
+              <Handshake className="w-5 h-5" />
+              Mitra Teratas
             </CardTitle>
             <CardDescription>
-              5 hotel dengan komisi tertinggi
+              5 mitra dengan komisi tertinggi
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockHotelCommissionData.topHotels.map((hotel, index) => (
-                <div key={hotel.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {mockMitraCommissionData.topMitra.map((mitra, index) => (
+                <div key={mitra.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-medium">
+                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
                       {index + 1}
                     </div>
                     <div>
-                      <div className="font-medium text-sm">{hotel.name}</div>
+                      <div className="font-medium text-sm">{mitra.name}</div>
                       <div className="text-xs text-gray-500 flex items-center gap-2">
-                        <StarRating rating={hotel.starRating} />
+                        <span className="capitalize">{mitra.mitraType}</span>
                         <span>•</span>
-                        <span>{hotel.location}</span>
+                        <span>{mitra.location}</span>
                         <span>•</span>
-                        <span>{hotel.totalBookings} booking</span>
+                        <span>{mitra.totalBookings} booking</span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-medium text-sm">
-                      Rp {(hotel.totalCommission / 1000000).toFixed(1)}M
+                      Rp {(mitra.totalCommission / 1000000).toFixed(1)}M
                     </div>
-                    <PerformanceBadge rating={hotel.performanceRating} />
+                    <PerformanceBadge rating={mitra.performanceRating} />
                   </div>
                 </div>
               ))}
@@ -646,16 +678,16 @@ export default function HotelCommissionReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BedDouble className="w-5 h-5" />
+              <Building className="w-5 h-5" />
               Komisi per Jaringan
             </CardTitle>
             <CardDescription>
-              Analisis komisi berdasarkan tipe jaringan hotel
+              Analisis komisi berdasarkan tipe jaringan mitra
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockHotelCommissionData.commissionsByChain.map((chain) => (
+              {mockMitraCommissionData.commissionsByChain.map((chain) => (
                 <div key={chain.chain} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-sm">{chain.chain}</div>
@@ -663,18 +695,17 @@ export default function HotelCommissionReportsPage() {
                       <span className="text-sm font-medium">
                         Rp {(chain.totalCommission / 1000000).toFixed(1)}M
                       </span>
-                      <Badge variant="outline">{chain.hotels} hotel</Badge>
+                      <Badge variant="outline">{chain.mitra} mitra</Badge>
                     </div>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(chain.totalCommission / mockHotelCommissionData.summary.totalCommissionEarned) * 100}%` }}
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(chain.totalCommission / mockMitraCommissionData.summary.totalCommissionEarned) * 100}%` }}
                     ></div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="text-xs text-gray-500">
                     <span>{chain.totalBookings} booking</span>
-                    <GrowthIndicator value={chain.growthRate} label="YoY" />
                   </div>
                 </div>
               ))}
@@ -692,12 +723,12 @@ export default function HotelCommissionReportsPage() {
               Komisi per Lokasi
             </CardTitle>
             <CardDescription>
-              Distribusi komisi berdasarkan lokasi hotel
+              Distribusi komisi berdasarkan lokasi mitra
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockHotelCommissionData.commissionsByLocation.map((location) => (
+              {mockMitraCommissionData.commissionsByLocation.map((location) => (
                 <div key={location.location} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-sm">{location.location}</div>
@@ -705,18 +736,17 @@ export default function HotelCommissionReportsPage() {
                       <span className="text-sm font-medium">
                         Rp {(location.totalCommission / 1000000).toFixed(1)}M
                       </span>
-                      <Badge variant="outline">{location.hotels} hotel</Badge>
+                      <Badge variant="outline">{location.mitra} mitra</Badge>
                     </div>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(location.totalCommission / mockHotelCommissionData.summary.totalCommissionEarned) * 100}%` }}
+                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(location.totalCommission / mockMitraCommissionData.summary.totalCommissionEarned) * 100}%` }}
                     ></div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="text-xs text-gray-500">
                     <span>{location.totalBookings} booking</span>
-                    <GrowthIndicator value={location.growthRate} label="YoY" />
                   </div>
                 </div>
               ))}
@@ -732,17 +762,17 @@ export default function HotelCommissionReportsPage() {
               Komisi Terbaru
             </CardTitle>
             <CardDescription>
-              Aktivitas komisi hotel terkini
+              Aktivitas komisi mitra terkini
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockHotelCommissionData.recentCommissions.map((commission) => (
+              {mockMitraCommissionData.recentCommissions.map((commission) => (
                 <div key={commission.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Receipt className="w-4 h-4 text-gray-400" />
                     <div>
-                      <div className="font-medium text-sm">{commission.hotelName}</div>
+                      <div className="font-medium text-sm">{commission.mitraName}</div>
                       <div className="text-xs text-gray-500">
                         {commission.roomType} • {commission.nights} malam • {commission.commissionRate}% komisi
                       </div>

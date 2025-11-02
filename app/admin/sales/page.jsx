@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/app/admin/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  TrendingUp,
+  X,
+  Save,
+  Package,
+  ShoppingCart,
+  DollarSign,
+  MapPin,
+  Calendar,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,281 +26,447 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  TrendingUp,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Target,
-} from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { getSales, createSales, updateSales, deleteSales, toggleSalesStatus } from "./actions";
+import { toast } from "sonner";
 
-// Mock data
-const mockSales = [
-  {
-    id: "sales_001",
-    name: "John Doe",
-    email: "john.sales@bahana-umkm.com",
-    phone: "08123456783",
-    role: "Sales",
-    status: "active",
-    target: 50000000,
-    actual: 45000000,
-    commission: 4500000,
-    area: "Jakarta Pusat",
-    joinDate: "2024-01-05T00:00:00Z",
-    lastActive: "2024-01-15T08:00:00Z",
-    totalClients: 25,
-    activeBorrows: 3,
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (sales) => console.log("View", sales) },
-      { label: "Edit Sales", icon: Edit, onClick: (sales) => console.log("Edit", sales) },
-      { label: "Delete", icon: Trash2, onClick: (sales) => console.log("Delete", sales), destructive: true }
-    ]
-  },
-  {
-    id: "sales_002",
-    name: "Jane Smith",
-    email: "jane.sales@bahana-umkm.com",
-    phone: "08123456784",
-    role: "Sales",
-    status: "inactive",
-    target: 40000000,
-    actual: 35000000,
-    commission: 3500000,
-    area: "Jakarta Selatan",
-    joinDate: "2024-01-06T00:00:00Z",
-    lastActive: "2024-01-10T15:30:00Z",
-    totalClients: 18,
-    activeBorrows: 0,
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (sales) => console.log("View", sales) },
-      { label: "Edit Sales", icon: Edit, onClick: (sales) => console.log("Edit", sales) },
-      { label: "Delete", icon: Trash2, onClick: (sales) => console.log("Delete", sales), destructive: true }
-    ]
-  },
-  {
-    id: "sales_003",
-    name: "Ahmad Rahman",
-    email: "ahmad.sales@bahana-umkm.com",
-    phone: "08123456788",
-    role: "Sales",
-    status: "active",
-    target: 60000000,
-    actual: 62000000,
-    commission: 6200000,
-    area: "Jakarta Barat",
-    joinDate: "2024-01-07T00:00:00Z",
-    lastActive: "2024-01-15T16:45:00Z",
-    totalClients: 32,
-    activeBorrows: 5,
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (sales) => console.log("View", sales) },
-      { label: "Edit Sales", icon: Edit, onClick: (sales) => console.log("Edit", sales) },
-      { label: "Delete", icon: Trash2, onClick: (sales) => console.log("Delete", sales), destructive: true }
-    ]
-  }
-];
-
-const salesStats = {
-  total: 3,
-  active: 2,
-  inactive: 1,
-  totalTarget: 150000000,
-  totalActual: 142000000,
-  totalCommission: 14200000,
-  totalClients: 75,
-  activeBorrows: 8
-};
-
-function StatusBadge({ status }) {
+function StatusBadge({ isActive }) {
   const statusConfig = {
-    active: { color: "bg-green-100 text-green-800", icon: CheckCircle },
-    inactive: { color: "bg-gray-100 text-gray-800", icon: XCircle }
+    true: "bg-green-100 text-green-800",
+    false: "bg-gray-100 text-gray-800"
   };
 
-  const config = statusConfig[status] || statusConfig.active;
-  const Icon = config.icon;
-
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-      <Icon className="w-3 h-3" />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig[isActive] || "bg-gray-100 text-gray-800"}`}>
+      {isActive ? "Active" : "Inactive"}
     </span>
   );
 }
 
-function PerformanceBadge({ actual, target }) {
-  const percentage = (actual / target) * 100;
-  const color = percentage >= 100 ? "text-green-600" : percentage >= 80 ? "text-yellow-600" : "text-red-600";
+function PerformanceBadge({ transactions, revenue }) {
+  const getPerformanceColor = (transactions) => {
+    if (transactions >= 40) return "text-green-600";
+    if (transactions >= 25) return "text-blue-600";
+    if (transactions >= 15) return "text-yellow-600";
+    return "text-red-600";
+  };
 
   return (
-    <div className="flex items-center gap-1">
-      <TrendingUp className={`w-4 h-4 ${color}`} />
-      <span className={`text-sm font-medium ${color}`}>
-        {percentage.toFixed(1)}%
-      </span>
+    <div className="text-sm">
+      <div className={`font-medium ${getPerformanceColor(transactions)}`}>
+        {transactions} transaksi
+      </div>
+      <div className="text-xs text-gray-500">
+        Rp {(parseInt(revenue) / 1000000).toFixed(0)}M revenue
+      </div>
     </div>
   );
 }
 
+function BorrowStatusBadge({ borrowed, returned, salesId }) {
+  const pending = borrowed - returned;
+  const getStatusColor = () => {
+    if (pending === 0) return "bg-green-100 text-green-800";
+    if (pending <= 2) return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
+  };
+
+  return (
+    <div className="text-sm">
+      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+        <Package className="w-3 h-3" />
+        {pending} pending
+      </div>
+      <div className="text-xs text-gray-500 mt-1">
+        {returned}/{borrowed} returned
+      </div>
+      {pending > 0 && (
+        <button
+          onClick={() => window.open('/admin/borrows', '_blank')}
+          className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-1"
+          title="View all borrows"
+        >
+          <ExternalLink className="w-3 h-3" />
+          View Details
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Mock data for integration with borrows page
+const mockBorrowsForSales = [
+  {
+    id: "uuid-borrow-001",
+    salesId: "uuid-sales-001",
+    borrowCode: "BOR-20240115-001",
+    productName: "Laptop ASUS ROG",
+    status: "borrowed",
+    borrowDate: "2024-01-15T09:00:00Z"
+  },
+  {
+    id: "uuid-borrow-002",
+    salesId: "uuid-sales-001",
+    borrowCode: "BOR-20240112-002",
+    productName: "Coffee Machine Deluxe",
+    status: "partial",
+    borrowDate: "2024-01-12T16:45:00Z"
+  },
+  {
+    id: "uuid-borrow-003",
+    salesId: "uuid-sales-002",
+    borrowCode: "BOR-20240110-002",
+    productName: "Mouse Gaming",
+    status: "returned",
+    borrowDate: "2024-01-10T14:30:00Z"
+  }
+];
+
+// Sales Form Component
+function SalesForm({ sales, onSave, onCancel, isOpen }) {
+  const [formData, setFormData] = useState({
+    username: sales?.username || "",
+    name: sales?.name || "",
+    email: sales?.email || "",
+    phone: sales?.phone || "",
+    isActive: sales?.isActive ?? true,
+    emailVerified: sales?.emailVerified ?? false,
+    phoneVerified: sales?.phoneVerified ?? false,
+    image: sales?.image || ""
+  });
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      ...formData,
+      id: sales?.id || `uuid-${Date.now()}`,
+      role: "sales",
+      lastLogin: sales?.lastLogin || null,
+      currentHotelId: sales?.currentHotelId || null,
+      totalTransactions: sales?.totalTransactions || 0,
+      totalRevenue: sales?.totalRevenue || "0",
+      totalCommission: sales?.totalCommission || "0",
+      pendingTransactions: sales?.pendingTransactions || 0,
+      borrowedProducts: sales?.borrowedProducts || 0,
+      returnedProducts: sales?.returnedProducts || 0,
+      joinDate: sales?.joinDate || new Date().toISOString().split('T')[0],
+      createdAt: sales?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onCancel}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {sales ? "Edit Sales" : "Add New Sales"}
+          </DialogTitle>
+          <DialogDescription>
+            {sales ? "Update sales information below." : "Create a new sales account."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => handleInputChange("username", e.target.value)}
+                placeholder="Enter username"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                placeholder="Enter full name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="Enter email address"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
+                placeholder="Enter phone number"
+                required
+              />
+            </div>
+          </div>
+
+          
+          <div className="space-y-2">
+            <Label htmlFor="image">Profile Image URL</Label>
+            <Input
+              id="image"
+              value={formData.image}
+              onChange={(e) => handleInputChange("image", e.target.value)}
+              placeholder="Enter image URL (optional)"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+              />
+              <Label htmlFor="isActive">Active</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="emailVerified"
+                checked={formData.emailVerified}
+                onCheckedChange={(checked) => handleInputChange("emailVerified", checked)}
+              />
+              <Label htmlFor="emailVerified">Email Verified</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="phoneVerified"
+                checked={formData.phoneVerified}
+                onCheckedChange={(checked) => handleInputChange("phoneVerified", checked)}
+              />
+              <Label htmlFor="phoneVerified">Phone Verified</Label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button type="submit">
+              <Save className="w-4 h-4 mr-2" />
+              {sales ? "Update" : "Create"} Sales
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function SalesPage() {
-  const [sales] = useState(mockSales);
-  const [selectedSales, setSelectedSales] = useState([]);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({});
+  const [sales, setSales] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingSales, setEditingSales] = useState(null);
+
+  // Fetch sales data on component mount
+  useEffect(() => {
+    fetchSales();
+  }, []);
+
+  const fetchSales = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getSales();
+      if (result.success) {
+        // Add actions to each sales user
+        const salesWithActions = result.data.map(salesUser => ({
+          ...salesUser,
+          actions: [
+            { label: "View", icon: Eye, onClick: () => handleViewSales(salesUser) },
+            { label: "Edit", icon: Edit, onClick: () => handleEditSales(salesUser) },
+            { label: "Delete", icon: Trash2, onClick: () => handleDeleteSales(salesUser), destructive: true }
+          ]
+        }));
+        setSales(salesWithActions);
+      } else {
+        toast.error(result.error || "Failed to fetch sales");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch sales");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddSales = () => {
+    setEditingSales(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditSales = (sales) => {
+    setEditingSales(sales);
+    setIsFormOpen(true);
+  };
+
+  const handleSaveSales = async (salesData) => {
+    let result;
+
+    if (editingSales) {
+      // Update existing sales
+      result = await updateSales(editingSales.id, salesData);
+    } else {
+      // Add new sales
+      result = await createSales(salesData);
+    }
+
+    if (result.success) {
+      await fetchSales(); // Refresh the sales list
+      setIsFormOpen(false);
+      setEditingSales(null);
+      toast.success(editingSales ? "Sales updated successfully" : "Sales created successfully");
+    } else {
+      toast.error(result.error || "Failed to save sales");
+    }
+  };
+
+  const handleCancelForm = () => {
+    setIsFormOpen(false);
+    setEditingSales(null);
+  };
+
+  const handleDeleteSales = async (sales) => {
+    if (confirm(`Are you sure you want to delete sales "${sales.name}"?`)) {
+      try {
+        const result = await deleteSales(sales.id);
+        if (result.success) {
+          toast.success("Sales deleted successfully");
+          await fetchSales(); // Refresh the sales list
+        } else {
+          toast.error(result.error || "Failed to delete sales");
+        }
+      } catch (error) {
+        toast.error("Failed to delete sales");
+      }
+    }
+  };
+
+  const handleViewSales = (sales) => {
+    const pendingBorrows = sales.pendingBorrows || 0;
+    const borrowInfo = pendingBorrows > 0
+      ? `\n\nPending Borrows: ${pendingBorrows} items`
+      : '';
+
+    alert(`Sales Details:\n\nName: ${sales.name}\nEmail: ${sales.email}\nPhone: ${sales.phone}\nUsername: ${sales.username}\nTotal Transactions: ${sales.totalTransactions || 0}\nTotal Revenue: Rp ${((sales.totalRevenue || 0)).toLocaleString('id-ID')}\nTotal Commission: Rp ${((sales.totalCommission || 0)).toLocaleString('id-ID')}\nPending Transactions: ${sales.pendingTransactions || 0}\nBorrowed Products: ${sales.borrowedProducts || 0}\nReturned Products: ${sales.returnedProducts || 0}\nStatus: ${sales.isActive ? 'Active' : 'Inactive'}\nEmail Verified: ${sales.emailVerified ? 'Yes' : 'No'}\nPhone Verified: ${sales.phoneVerified ? 'Yes' : 'No'}${borrowInfo}`);
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(parseInt(amount) || 0);
+  };
 
   const columns = [
     {
-      key: "name",
-      title: "Sales Information",
-      sortable: true,
+      key: "image",
+      title: "Sales Info",
       render: (value, row) => (
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <User className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <div className="font-medium">{value}</div>
-              <div className="text-sm text-gray-500">{row.email}</div>
-            </div>
+        <div className="flex items-center gap-3">
+          {value ? (
+            <img
+              src={value}
+              alt={row.name}
+              className="w-10 h-10 rounded-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextElementSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center" style={{display: value ? 'none' : 'flex'}}>
+            <span className="text-xs font-medium text-gray-600">
+              {row.name.charAt(0).toUpperCase()}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-3 h-3 text-gray-400" />
-            <span className="text-sm text-gray-600">{row.phone}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-3 h-3 text-gray-400" />
-            <span className="text-sm text-gray-600">{row.area}</span>
+          <div>
+            <div className="font-medium">{row.name}</div>
+            <div className="text-sm text-gray-500">@{row.username}</div>
           </div>
         </div>
       )
     },
     {
-      key: "status",
-      title: "Status",
-      sortable: true,
-      render: (value) => <StatusBadge status={value} />
+      key: "contact",
+      title: "Contact",
+      render: (value, row) => (
+        <div>
+          <div className="text-sm">{row.email}</div>
+          <div className="text-xs text-gray-500">{row.phone}</div>
+        </div>
+      )
     },
     {
       key: "performance",
       title: "Performance",
-      sortable: true,
-      render: (value, row) => (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Target</span>
-            <span className="font-medium">Rp {row.target.toLocaleString('id-ID')}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Actual</span>
-            <span className="font-medium">Rp {row.actual.toLocaleString('id-ID')}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full ${
-                (row.actual / row.target) >= 1 ? "bg-green-600" :
-                (row.actual / row.target) >= 0.8 ? "bg-yellow-600" : "bg-red-600"
-              }`}
-              style={{ width: `${Math.min((row.actual / row.target) * 100, 100)}%` }}
-            ></div>
-          </div>
-          <PerformanceBadge actual={row.actual} target={row.target} />
-        </div>
-      )
+      render: (value, row) => <PerformanceBadge transactions={row.totalTransactions} revenue={row.totalRevenue} />
     },
     {
       key: "commission",
       title: "Commission",
-      sortable: true,
-      render: (value, row) => (
-        <div className="space-y-1">
-          <div className="text-sm font-medium">
-            Rp {row.commission.toLocaleString('id-ID')}
-          </div>
-          <div className="text-xs text-gray-500">
-            {((row.commission / row.actual) * 100).toFixed(1)}% rate
-          </div>
-        </div>
-      )
-    },
-    {
-      key: "stats",
-      title: "Statistics",
-      render: (value, row) => (
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm">
-            <User className="w-3 h-3 text-gray-400" />
-            <span>{row.totalClients} clients</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Target className="w-3 h-3 text-gray-400" />
-            <span>{row.activeBorrows} active borrows</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      key: "joinDate",
-      title: "Join Date",
-      sortable: true,
       render: (value, row) => (
         <div className="text-sm">
-          <div>{new Date(value).toLocaleDateString('id-ID')}</div>
+          <div className="font-medium text-green-600">
+            {formatCurrency(row.totalCommission)}
+          </div>
           <div className="text-xs text-gray-500">
-            Last active: {new Date(row.lastActive).toLocaleDateString('id-ID')}
+            {row.pendingTransactions} pending
           </div>
         </div>
       )
-    }
-  ];
-
-  const filterOptions = [
-    {
-      key: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { value: "all", label: "All Status" },
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" }
-      ]
     },
     {
-      key: "area",
-      label: "Area",
-      type: "select",
-      options: [
-        { value: "all", label: "All Areas" },
-        { value: "Jakarta Pusat", label: "Jakarta Pusat" },
-        { value: "Jakarta Selatan", label: "Jakarta Selatan" },
-        { value: "Jakarta Barat", label: "Jakarta Barat" },
-        { value: "Jakarta Timur", label: "Jakarta Timur" },
-        { value: "Jakarta Utara", label: "Jakarta Utara" }
-      ]
+      key: "borrowStatus",
+      title: "Product Borrow",
+      render: (value, row) => <BorrowStatusBadge borrowed={row.borrowedProducts} returned={row.returnedProducts} salesId={row.id} />
+    },
+    {
+      key: "isActive",
+      title: "Status",
+      render: (value) => <StatusBadge isActive={value} />
+    },
+    {
+      key: "lastLogin",
+      title: "Last Login",
+      render: (value) => (
+        <div className="text-sm">
+          {value ? new Date(value).toLocaleString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'Never'}
+        </div>
+      )
     }
   ];
 
@@ -296,171 +475,39 @@ export default function SalesPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Manajemen Sales</h1>
-          <p className="text-gray-500">Kelola tim sales lapangan dan target penjualan</p>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <TrendingUp className="w-6 h-6" />
+            Sales Management
+          </h1>
+          <p className="text-gray-500">Manage sales team performance and activities</p>
         </div>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Sales
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Tambah Sales Baru</DialogTitle>
-              <DialogDescription>
-                Tambahkan sales lapangan baru ke tim.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="salesName">Full Name</Label>
-                  <Input id="salesName" placeholder="Enter full name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="sales@example.com" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" placeholder="08123456789" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="area">Sales Area</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select area" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="jakarta-pusat">Jakarta Pusat</SelectItem>
-                      <SelectItem value="jakarta-selatan">Jakarta Selatan</SelectItem>
-                      <SelectItem value="jakarta-barat">Jakarta Barat</SelectItem>
-                      <SelectItem value="jakarta-timur">Jakarta Timur</SelectItem>
-                      <SelectItem value="jakarta-utara">Jakarta Utara</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="target">Monthly Target</Label>
-                  <Input id="target" type="number" placeholder="50000000" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="commission">Commission Rate (%)</Label>
-                  <Input id="commission" type="number" placeholder="10" />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Create Sales</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{salesStats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              Sales team members
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{salesStats.active}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently active
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Performance</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {((salesStats.totalActual / salesStats.totalTarget) * 100).toFixed(1)}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Target achievement
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commission</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              Rp {salesStats.totalCommission.toLocaleString('id-ID')}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
-          </CardContent>
-        </Card>
+        <Button onClick={handleAddSales} disabled={isLoading}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Sales
+        </Button>
       </div>
 
       {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={sales}
-        searchKey="name"
-        filters={filterOptions}
-        searchable={true}
-        filterable={true}
-        selectable={true}
-        selectedRows={selectedSales}
-        onSelectedRowsChange={setSelectedSales}
-        pagination={{
-          total: sales.length,
-          page: 1,
-          pageSize: 10
-        }}
-        onSearch={setSearchTerm}
-        onFilter={(key, value) => {
-          setFilters(prev => ({ ...prev, [key]: value }));
-        }}
-        emptyMessage="No sales found"
-        actions={[
-          {
-            label: "Activate",
-            icon: CheckCircle,
-            onClick: (ids) => console.log("Activate", ids),
-            disabled: selectedSales.length === 0
-          },
-          {
-            label: "Deactivate",
-            icon: XCircle,
-            onClick: (ids) => console.log("Deactivate", ids),
-            disabled: selectedSales.length === 0
-          },
-          {
-            label: "Delete",
-            icon: Trash2,
-            onClick: (ids) => console.log("Delete", ids),
-            disabled: selectedSales.length === 0,
-            destructive: true
-          }
-        ]}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+          <span className="ml-2 text-gray-600">Loading sales data...</span>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={sales}
+          searchable={true}
+          emptyMessage="No sales records found"
+        />
+      )}
+
+      {/* Sales Form Modal */}
+      <SalesForm
+        sales={editingSales}
+        onSave={handleSaveSales}
+        onCancel={handleCancelForm}
+        isOpen={isFormOpen}
       />
     </div>
   );

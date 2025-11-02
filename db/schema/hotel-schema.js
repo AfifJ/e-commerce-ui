@@ -6,6 +6,7 @@ import {
   boolean,
   decimal,
 } from "drizzle-orm/mysql-core";
+import { users } from "./auth-schema";
 
 // Table: hotels (Mitra Hotel)
 export const hotels = mysqlTable("hotels", {
@@ -19,6 +20,7 @@ export const hotels = mysqlTable("hotels", {
   commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("0.00"),
   isActive: boolean("is_active").default(true),
   qrCodeUrl: varchar("qr_code_url", { length: 500 }),
+  ownerId: varchar("owner_id", { length: 36 }).references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { fsp: 3 }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { fsp: 3 })
     .defaultNow()

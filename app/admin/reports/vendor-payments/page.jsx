@@ -21,40 +21,126 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  TrendingUp,
-  TrendingDown,
   DollarSign,
   Building,
   Calendar,
   Download,
-  Filter,
-  BarChart3,
   PieChart,
-  Users,
   Package,
-  CreditCard,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  Eye,
   CheckCircle,
   Clock,
   AlertTriangle,
-  FileText,
   Receipt,
 } from "lucide-react";
 
-// Mock data
-const mockVendorPaymentsData = {
+// Mock data matching database schema
+const mockVendorPayments = [
+  {
+    id: "uuid-vp-001",
+    vendorId: "uuid-vendor-001",
+    vendorName: "PT. Teknologi Maju",
+    vendorEmail: "info@teknologimaju.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalSales: 45,
+    totalAmount: "125500000",
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BCA 1234567890 a.n PT. Teknologi Maju",
+    paidAt: "2024-01-20T10:30:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Payment for January 2024 sales period",
+    createdAt: "2024-01-15T00:00:00Z",
+    updatedAt: "2024-01-20T10:30:00Z"
+  },
+  {
+    id: "uuid-vp-002",
+    vendorId: "uuid-vendor-002",
+    vendorName: "CV. Elektronik Jaya",
+    vendorEmail: "admin@elektronikjaya.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalSales: 38,
+    totalAmount: "98500000",
+    status: "processing",
+    paymentMethod: "transfer",
+    bankAccount: "Mandiri 9876543210 a.n CV. Elektronik Jaya",
+    paidAt: null,
+    processedBy: null,
+    processedByName: null,
+    notes: "Awaiting confirmation from vendor",
+    createdAt: "2024-01-15T00:00:00Z",
+    updatedAt: "2024-01-18T14:20:00Z"
+  },
+  {
+    id: "uuid-vp-003",
+    vendorId: "uuid-vendor-003",
+    vendorName: "PT. Audio Indonesia",
+    vendorEmail: "contact@audioindonesia.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalSales: 52,
+    totalAmount: "156800000",
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BNI 5555666677 a.n PT. Audio Indonesia",
+    paidAt: "2024-01-05T09:15:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Payment for December 2023 sales period",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-05T09:15:00Z"
+  },
+  {
+    id: "uuid-vp-004",
+    vendorId: "uuid-vendor-001",
+    vendorName: "PT. Teknologi Maju",
+    vendorEmail: "info@teknologimaju.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalSales: 63,
+    totalAmount: "189400000",
+    status: "cancelled",
+    paymentMethod: "cash",
+    bankAccount: null,
+    paidAt: null,
+    processedBy: "uuid-admin-002",
+    processedByName: "Admin Two",
+    notes: "Cancelled due to vendor account closure",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-02T16:45:00Z"
+  },
+  {
+    id: "uuid-vp-005",
+    vendorId: "uuid-vendor-004",
+    vendorName: "UD. Gadget Store",
+    vendorEmail: "gadget@store.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalSales: 28,
+    totalAmount: "67200000",
+    status: "pending",
+    paymentMethod: null,
+    bankAccount: "BRI 8888999900 a.n UD. Gadget Store",
+    paidAt: null,
+    processedBy: null,
+    processedByName: null,
+    notes: "New vendor payment pending approval",
+    createdAt: "2024-01-18T00:00:00Z",
+    updatedAt: "2024-01-18T00:00:00Z"
+  }
+];
+
+// Summary data
+const mockSummaryData = {
   summary: {
     totalPayments: 4567000000,
     totalVendors: 127,
     averagePaymentPerVendor: 35960000,
     pendingPayments: 234000000,
     completedPayments: 4333000000,
-    overduePayments: 123000000,
-    paymentGrowthRate: 18.5,
-    vendorGrowthRate: 12.3
+    overduePayments: 123000000
   },
   paymentsByPeriod: [
     { period: "Jan 2024", amount: 485000000, vendors: 89, completed: 435000000, pending: 50000000 },
@@ -77,8 +163,7 @@ const mockVendorPaymentsData = {
       lastPaymentDate: "2024-08-25T14:30:00Z",
       totalOrders: 156,
       averageOrderValue: 5487179,
-      paymentStatus: "active",
-      growthRate: 23.5
+      paymentStatus: "active"
     },
     {
       id: "VND-002",
@@ -90,8 +175,7 @@ const mockVendorPaymentsData = {
       lastPaymentDate: "2024-08-22T10:15:00Z",
       totalOrders: 289,
       averageOrderValue: 2193775,
-      paymentStatus: "active",
-      growthRate: 18.2
+      paymentStatus: "active"
     },
     {
       id: "VND-003",
@@ -103,8 +187,7 @@ const mockVendorPaymentsData = {
       lastPaymentDate: "2024-08-20T16:45:00Z",
       totalOrders: 98,
       averageOrderValue: 4316326,
-      paymentStatus: "active",
-      growthRate: 15.8
+      paymentStatus: "active"
     },
     {
       id: "VND-004",
@@ -116,8 +199,7 @@ const mockVendorPaymentsData = {
       lastPaymentDate: "2024-08-26T09:30:00Z",
       totalOrders: 87,
       averageOrderValue: 4471264,
-      paymentStatus: "active",
-      growthRate: 28.5
+      paymentStatus: "active"
     },
     {
       id: "VND-005",
@@ -129,8 +211,7 @@ const mockVendorPaymentsData = {
       lastPaymentDate: "2024-08-15T11:20:00Z",
       totalOrders: 145,
       averageOrderValue: 2151724,
-      paymentStatus: "overdue",
-      growthRate: 8.7
+      paymentStatus: "overdue"
     }
   ],
   paymentsByCategory: [
@@ -141,7 +222,6 @@ const mockVendorPaymentsData = {
       vendors: 45,
       pendingPayments: 89000000,
       completedPayments: 2756000000,
-      growthRate: 22.3,
       topVendor: "PT. Elektronik Jaya"
     },
     {
@@ -151,7 +231,6 @@ const mockVendorPaymentsData = {
       vendors: 52,
       pendingPayments: 98000000,
       completedPayments: 1147000000,
-      growthRate: 18.7,
       topVendor: "CV. Fashion Trend"
     },
     {
@@ -161,7 +240,6 @@ const mockVendorPaymentsData = {
       vendors: 30,
       pendingPayments: 47000000,
       completedPayments: 430000000,
-      growthRate: 5.2,
       topVendor: "UD. Rumah Tangga"
     }
   ],
@@ -170,22 +248,19 @@ const mockVendorPaymentsData = {
       status: "Completed",
       count: 1098,
       amount: 4333000000,
-      percentage: 94.9,
-      trend: "up"
+      percentage: 94.9
     },
     {
       status: "Pending",
       count: 87,
       amount: 234000000,
-      percentage: 5.1,
-      trend: "stable"
+      percentage: 5.1
     },
     {
       status: "Overdue",
       count: 12,
       amount: 123000000,
-      percentage: 2.7,
-      trend: "down"
+      percentage: 2.7
     }
   ],
   recentPayments: [
@@ -234,8 +309,7 @@ const mockVendorPaymentsData = {
   ]
 };
 
-function MetricCard({ title, value, change, changeType, icon, subtitle }) {
-  const isPositive = changeType === "positive";
+function MetricCard({ title, value, icon, subtitle }) {
   const Icon = icon;
 
   return (
@@ -246,17 +320,9 @@ function MetricCard({ title, value, change, changeType, icon, subtitle }) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {change && (
-          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-            {isPositive ? (
-              <ArrowUpRight className="h-3 w-3 text-green-600" />
-            ) : (
-              <ArrowDownRight className="h-3 w-3 text-red-600" />
-            )}
-            <span className={isPositive ? "text-green-600" : "text-red-600"}>
-              {Math.abs(change)}%
-            </span>
-            <span>{subtitle}</span>
+        {subtitle && (
+          <div className="text-xs text-muted-foreground">
+            {subtitle}
           </div>
         )}
       </CardContent>
@@ -282,23 +348,6 @@ function PaymentStatusBadge({ status }) {
   );
 }
 
-function GrowthIndicator({ value, label }) {
-  const isPositive = value > 0;
-
-  return (
-    <div className="flex items-center gap-1">
-      {isPositive ? (
-        <TrendingUp className="w-4 h-4 text-green-600" />
-      ) : (
-        <TrendingDown className="w-4 h-4 text-red-600" />
-      )}
-      <span className={`text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {Math.abs(value).toFixed(1)}%
-      </span>
-      <span className="text-sm text-gray-500">{label}</span>
-    </div>
-  );
-}
 
 export default function VendorPaymentsReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("this-month");
@@ -354,61 +403,31 @@ export default function VendorPaymentsReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Pembayaran"
-          value={`Rp ${(mockVendorPaymentsData.summary.totalPayments / 1000000000).toFixed(1)}B`}
-          change={mockVendorPaymentsData.summary.paymentGrowthRate}
-          changeType="positive"
+          value={`Rp ${(mockSummaryData.summary.totalPayments / 1000000000).toFixed(1)}B`}
           icon={DollarSign}
-          subtitle="dari bulan lalu"
+          subtitle="total pembayaran"
         />
         <MetricCard
           title="Total Vendor"
-          value={mockVendorPaymentsData.summary.totalVendors}
-          change={mockVendorPaymentsData.summary.vendorGrowthRate}
-          changeType="positive"
+          value={mockSummaryData.summary.totalVendors}
           icon={Building}
           subtitle="aktif"
         />
         <MetricCard
           title="Pembayaran Pending"
-          value={`Rp ${(mockVendorPaymentsData.summary.pendingPayments / 1000000).toFixed(0)}M`}
-          changeType="neutral"
+          value={`Rp ${(mockSummaryData.summary.pendingPayments / 1000000).toFixed(0)}M`}
           icon={Clock}
           subtitle="menunggu proses"
         />
         <MetricCard
           title="Rata-rata Pembayaran"
-          value={`Rp ${(mockVendorPaymentsData.summary.averagePaymentPerVendor / 1000000).toFixed(1)}M`}
-          change={8.5}
-          changeType="positive"
+          value={`Rp ${(mockSummaryData.summary.averagePaymentPerVendor / 1000000).toFixed(1)}M`}
           icon={Receipt}
           subtitle="per vendor"
         />
       </div>
 
-      {/* Payment Trend Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
-            Tren Pembayaran Vendor
-          </CardTitle>
-          <CardDescription>
-            Total pembayaran vendor bulanan selama 8 bulan terakhir
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <BarChart3 className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">Grafik Tren Pembayaran Vendor</p>
-              <p className="text-sm text-gray-500">
-                Total pembayaran tumbuh {mockVendorPaymentsData.summary.paymentGrowthRate}% MoM
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+  
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Vendors */}
         <Card>
@@ -423,7 +442,7 @@ export default function VendorPaymentsReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockVendorPaymentsData.topVendors.map((vendor, index) => (
+              {mockSummaryData.topVendors.map((vendor, index) => (
                 <div key={vendor.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
@@ -459,7 +478,7 @@ export default function VendorPaymentsReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockVendorPaymentsData.paymentStatus.map((status) => (
+              {mockSummaryData.paymentStatus.map((status) => (
                 <div key={status.status} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-sm flex items-center gap-2">
@@ -506,7 +525,7 @@ export default function VendorPaymentsReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockVendorPaymentsData.paymentsByCategory.map((category) => (
+              {mockSummaryData.paymentsByCategory.map((category) => (
                 <div key={category.category} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-sm">{category.category}</div>
@@ -523,9 +542,8 @@ export default function VendorPaymentsReportsPage() {
                       style={{ width: `${category.percentage}%` }}
                     ></div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="text-xs text-gray-500">
                     <span>{category.vendors} vendor</span>
-                    <GrowthIndicator value={category.growthRate} label="YoY" />
                   </div>
                 </div>
               ))}
@@ -546,7 +564,7 @@ export default function VendorPaymentsReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockVendorPaymentsData.recentPayments.map((payment) => (
+              {mockSummaryData.recentPayments.map((payment) => (
                 <div key={payment.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Receipt className="w-4 h-4 text-gray-400" />

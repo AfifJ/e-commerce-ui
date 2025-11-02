@@ -46,7 +46,111 @@ import {
   Award,
 } from "lucide-react";
 
-// Mock data
+// Mock data matching database schema
+const mockCommissionPayments = [
+  {
+    id: "uuid-cp-001",
+    userId: "uuid-sales-001",
+    userType: "sales",
+    userName: "Ahmad Rahman",
+    userEmail: "ahmad.rahman@example.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "3765000",
+    totalTransactions: 45,
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BCA 1111222233 a.n Ahmad Rahman",
+    paidAt: "2024-01-25T14:30:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Commission for January 2024",
+    createdAt: "2024-01-20T00:00:00Z",
+    updatedAt: "2024-01-25T14:30:00Z"
+  },
+  {
+    id: "uuid-cp-002",
+    userId: "uuid-sales-002",
+    userType: "sales",
+    userName: "Siti Aminah",
+    userEmail: "siti.aminah@example.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "2955000",
+    totalTransactions: 38,
+    status: "processing",
+    paymentMethod: "transfer",
+    bankAccount: "Mandiri 4444555566 a.n Siti Aminah",
+    paidAt: null,
+    processedBy: null,
+    processedByName: null,
+    notes: "Commission for January 2024 - processing",
+    createdAt: "2024-01-20T00:00:00Z",
+    updatedAt: "2024-01-22T10:15:00Z"
+  },
+  {
+    id: "uuid-cp-003",
+    userId: "uuid-hotel-001",
+    userType: "hotel",
+    userName: "Hotel Maju Jaya",
+    userEmail: "info@majujaya.com",
+    periodMonth: 1,
+    periodYear: 2024,
+    totalCommission: "5420000",
+    totalTransactions: 67,
+    status: "paid",
+    paymentMethod: "transfer",
+    bankAccount: "BNI 7777888899 a.n Hotel Maju Jaya",
+    paidAt: "2024-01-25T16:45:00Z",
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Hotel commission for January 2024",
+    createdAt: "2024-01-20T00:00:00Z",
+    updatedAt: "2024-01-25T16:45:00Z"
+  },
+  {
+    id: "uuid-cp-004",
+    userId: "uuid-sales-003",
+    userType: "sales",
+    userName: "Budi Santoso",
+    userEmail: "budi.santoso@example.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalCommission: "2346000",
+    totalTransactions: 32,
+    status: "paid",
+    paymentMethod: "cash",
+    bankAccount: null,
+    paidAt: "2024-01-05T11:20:00Z",
+    processedBy: "uuid-admin-002",
+    processedByName: "Admin Two",
+    notes: "Commission for December 2023 - cash payment",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-05T11:20:00Z"
+  },
+  {
+    id: "uuid-cp-005",
+    userId: "uuid-sales-001",
+    userType: "sales",
+    userName: "Ahmad Rahman",
+    userEmail: "ahmad.rahman@example.com",
+    periodMonth: 12,
+    periodYear: 2023,
+    totalCommission: "2890000",
+    totalTransactions: 41,
+    status: "cancelled",
+    paymentMethod: "transfer",
+    bankAccount: "BCA 1111222233 a.n Ahmad Rahman",
+    paidAt: null,
+    processedBy: "uuid-admin-001",
+    processedByName: "Admin User",
+    notes: "Cancelled due to policy violation",
+    createdAt: "2023-12-31T23:59:59Z",
+    updatedAt: "2024-01-03T09:30:00Z"
+  }
+];
+
+// Summary data
 const mockCommissionData = {
   summary: {
     totalCommissionPaid: 456700000,

@@ -23,334 +23,517 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Eye,
   Edit,
-  User,
+  Trash2,
+  Eye,
   Package,
+  User,
   Calendar,
-  AlertTriangle,
   CheckCircle,
   Clock,
-  FileText,
-  RefreshCw,
-  Truck,
-  Phone,
-  MapPin,
+  RotateCcw,
+  PackageOpen,
 } from "lucide-react";
-import { XCircle } from "lucide-react";
 
-// Mock data
-const mockBorrows = [
+// Mock data matching database schema
+const mockSales = [
   {
-    id: "BOR-2024-001",
-    salesPerson: "John Doe",
-    salesEmail: "john.sales@bahana-umkm.com",
-    salesPhone: "08123456783",
-    salesArea: "Jakarta Pusat",
-    hotelName: "Hotel Maju Jaya",
-    hotelContact: "Budi Santoso",
-    hotelPhone: "08123456785",
-    items: [
-      { name: "Laptop ASUS ROG", quantity: 5, value: 75000000, serialNumbers: ["LAP-001", "LAP-002", "LAP-003", "LAP-004", "LAP-005"] },
-      { name: "Mouse Gaming", quantity: 10, value: 2500000, serialNumbers: ["MOU-001", "MOU-002", "MOU-003", "MOU-004", "MOU-005", "MOU-006", "MOU-007", "MOU-008", "MOU-009", "MOU-010"] }
-    ],
-    totalValue: 77500000,
-    status: "active",
-    borrowDate: "2024-01-10T09:00:00Z",
-    expectedReturn: "2024-01-20T18:00:00Z",
-    actualReturn: null,
-    purpose: "Hotel room display and guest trials",
-    notes: "Items to be displayed in hotel lobby and available for guest trials",
-    location: "Hotel Maju Jaya - Lobby Display Area",
-    agreementDocument: "BOR-2024-001-agreement.pdf",
-    insuranceCoverage: true,
-    insuranceValue: 77500000,
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (borrow) => console.log("View", borrow) },
-      { label: "Extend Borrow", icon: Calendar, onClick: (borrow) => console.log("Extend", borrow) },
-      { label: "Return Items", icon: RefreshCw, onClick: (borrow) => console.log("Return", borrow) }
-    ]
+    id: "uuid-sales-001",
+    name: "John Doe",
+    username: "johndoe",
+    email: "john.doe@example.com",
+    area: "Jakarta Pusat",
+    isActive: true,
+    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=johndoe"
   },
   {
-    id: "BOR-2024-002",
-    salesPerson: "Jane Smith",
-    salesEmail: "jane.sales@bahana-umkm.com",
-    salesPhone: "08123456784",
-    salesArea: "Jakarta Selatan",
-    hotelName: "Hotel Melati Indah",
-    hotelContact: "Siti Aminah",
-    hotelPhone: "08123456787",
-    items: [
-      { name: "Smart TV LG 43 inch", quantity: 3, value: 13500000, serialNumbers: ["TV-001", "TV-002", "TV-003"] },
-      { name: "Speaker Bluetooth", quantity: 8, value: 1600000, serialNumbers: ["SPK-001", "SPK-002", "SPK-003", "SPK-004", "SPK-005", "SPK-006", "SPK-007", "SPK-008"] }
-    ],
-    totalValue: 15100000,
-    status: "returned",
-    borrowDate: "2024-01-05T14:30:00Z",
-    expectedReturn: "2024-01-15T18:00:00Z",
-    actualReturn: "2024-01-14T16:45:00Z",
-    purpose: "Hotel room upgrades and guest amenities",
-    notes: "Items returned in good condition, all serial numbers matched",
-    location: "Hotel Melati Indah - Returned to warehouse",
-    agreementDocument: "BOR-2024-002-agreement.pdf",
-    insuranceCoverage: true,
-    insuranceValue: 15100000,
-    returnCondition: "good",
-    returnNotes: "All items inspected and found in excellent condition",
-    actions: [
-      { label: "View Details", icon: Eye, onClick: (borrow) => console.log("View", borrow) },
-      { label: "Download Report", icon: FileText, onClick: (borrow) => console.log("Report", borrow) },
-      { label: "View Agreement", icon: FileText, onClick: (borrow) => console.log("Agreement", borrow) }
-    ]
+    id: "uuid-sales-002",
+    name: "Jane Smith",
+    username: "janesmith",
+    email: "jane.smith@example.com",
+    area: "Jakarta Selatan",
+    isActive: true,
+    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=janesmith"
   },
   {
-    id: "BOR-2024-003",
-    salesPerson: "Ahmad Rahman",
-    salesEmail: "ahmad.sales@bahana-umkm.com",
-    salesPhone: "08123456788",
-    salesArea: "Jakarta Barat",
-    hotelName: "Hotel Berkah",
-    hotelContact: "Ahmad Fadli",
-    hotelPhone: "08123456786",
-    items: [
-      { name: "Coffee Machine Deluxe", quantity: 2, value: 8000000, serialNumbers: ["CFE-001", "CFE-002"] },
-      { name: "Kettle Electric", quantity: 5, value: 1500000, serialNumbers: ["KTL-001", "KTL-002", "KTL-003", "KTL-004", "KTL-005"] }
-    ],
-    totalValue: 9500000,
-    status: "overdue",
-    borrowDate: "2024-01-01T10:00:00Z",
-    expectedReturn: "2024-01-10T18:00:00Z",
-    actualReturn: null,
-    purpose: "Hotel room coffee station setup",
-    notes: "Initial borrow period extended once, now overdue by 5 days",
-    location: "Hotel Berkah - In-Room Coffee Stations",
-    agreementDocument: "BOR-2024-003-agreement.pdf",
-    insuranceCoverage: true,
-    insuranceValue: 9500000,
-    overdueDays: 5,
-    actions: [
-      { label: "Contact Hotel", icon: Phone, onClick: (borrow) => console.log("Contact", borrow) },
-      { label: "Extend Period", icon: Calendar, onClick: (borrow) => console.log("Extend", borrow) },
-      { label: "Force Return", icon: RefreshCw, onClick: (borrow) => console.log("Force Return", borrow) }
-    ]
-  },
-  {
-    id: "BOR-2024-004",
-    salesPerson: "John Doe",
-    salesEmail: "john.sales@bahana-umkm.com",
-    salesPhone: "08123456783",
-    salesArea: "Jakarta Pusat",
-    hotelName: "Hotel Maju Jaya",
-    hotelContact: "Budi Santoso",
-    hotelPhone: "08123456785",
-    items: [
-      { name: "Projector BenQ", quantity: 1, value: 12000000, serialNumbers: ["PRJ-001"] },
-      { name: "Screen Projector", quantity: 1, value: 3000000, serialNumbers: ["SCR-001"] }
-    ],
-    totalValue: 15000000,
-    status: "pending",
-    borrowDate: null,
-    expectedReturn: "2024-01-25T18:00:00Z",
-    actualReturn: null,
-    purpose: "Conference room setup for business meetings",
-    notes: "Awaiting hotel confirmation for conference room availability",
-    location: "Not yet assigned - pending approval",
-    agreementDocument: null,
-    insuranceCoverage: false,
-    insuranceValue: 0,
-    actions: [
-      { label: "Approve Borrow", icon: CheckCircle, onClick: (borrow) => console.log("Approve", borrow) },
-      { label: "Edit Request", icon: Edit, onClick: (borrow) => console.log("Edit", borrow) },
-      { label: "Cancel Request", icon: XCircle, onClick: (borrow) => console.log("Cancel", borrow) }
-    ]
+    id: "uuid-sales-003",
+    name: "Ahmad Rahman",
+    username: "ahmadr",
+    email: "ahmad.rahman@example.com",
+    area: "Jakarta Barat",
+    isActive: true,
+    image: null
   }
 ];
 
-const borrowStats = {
-  total: 4,
-  active: 1,
-  returned: 1,
-  overdue: 1,
-  pending: 1,
-  totalValue: 117100000,
-  activeValue: 77500000,
-  overdueValue: 9500000,
-  itemsBorrowed: 35,
-  itemsReturned: 25,
-  itemsOutstanding: 10
-};
-
-function StatusBadge({ status, overdueDays }) {
-  if (status === "overdue") {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        <AlertTriangle className="w-3 h-3" />
-        Overdue ({overdueDays} days)
-      </span>
-    );
+const mockProducts = [
+  {
+    id: "uuid-prod-001",
+    name: "Laptop ASUS ROG",
+    sku: "LAP-001",
+    category: "Elektronik",
+    currentStock: 25,
+    borrowedStock: 5,
+    sellPrice: 15000000
+  },
+  {
+    id: "uuid-prod-002",
+    name: "Mouse Gaming",
+    sku: "MOU-001",
+    category: "Elektronik",
+    currentStock: 100,
+    borrowedStock: 10,
+    sellPrice: 250000
+  },
+  {
+    id: "uuid-prod-003",
+    name: "Smart TV LG 43 inch",
+    sku: "TV-001",
+    category: "Elektronik",
+    currentStock: 15,
+    borrowedStock: 3,
+    sellPrice: 4500000
+  },
+  {
+    id: "uuid-prod-004",
+    name: "Coffee Machine Deluxe",
+    sku: "CFE-001",
+    category: "Rumah Tangga",
+    currentStock: 8,
+    borrowedStock: 2,
+    sellPrice: 4000000
   }
+];
 
+const mockBorrows = [
+  {
+    id: "uuid-borrow-001",
+    borrowCode: "BOR-20240115-001",
+    salesId: "uuid-sales-001",
+    salesName: "John Doe",
+    salesArea: "Jakarta Pusat",
+    productId: "uuid-prod-001",
+    productName: "Laptop ASUS ROG",
+    productSku: "LAP-001",
+    borrowQuantity: 1,
+    returnedQuantity: 0,
+    status: "borrowed",
+    borrowDate: "2024-01-15T09:00:00Z",
+    returnDate: null,
+    notes: "Demo untuk client PT Tech Indonesia",
+    createdAt: "2024-01-15T09:00:00Z",
+    updatedAt: "2024-01-15T09:00:00Z"
+  },
+  {
+    id: "uuid-borrow-002",
+    borrowCode: "BOR-20240110-002",
+    salesId: "uuid-sales-002",
+    salesName: "Jane Smith",
+    salesArea: "Jakarta Selatan",
+    productId: "uuid-prod-002",
+    productName: "Mouse Gaming",
+    productSku: "MOU-001",
+    borrowQuantity: 2,
+    returnedQuantity: 2,
+    status: "returned",
+    borrowDate: "2024-01-10T14:30:00Z",
+    returnDate: "2024-01-16T11:20:00Z",
+    notes: "Demo untuk hotel client",
+    createdAt: "2024-01-10T14:30:00Z",
+    updatedAt: "2024-01-16T11:20:00Z"
+  },
+  {
+    id: "uuid-borrow-003",
+    borrowCode: "BOR-20240108-003",
+    salesId: "uuid-sales-003",
+    salesName: "Ahmad Rahman",
+    salesArea: "Jakarta Barat",
+    productId: "uuid-prod-003",
+    productName: "Smart TV LG 43 inch",
+    productSku: "TV-001",
+    borrowQuantity: 1,
+    returnedQuantity: 0,
+    status: "borrowed",
+    borrowDate: "2024-01-08T10:15:00Z",
+    returnDate: null,
+    notes: "Demo untuk restoran client",
+    createdAt: "2024-01-08T10:15:00Z",
+    updatedAt: "2024-01-08T10:15:00Z"
+  },
+  {
+    id: "uuid-borrow-004",
+    borrowCode: "BOR-20240112-004",
+    salesId: "uuid-sales-001",
+    salesName: "John Doe",
+    salesArea: "Jakarta Pusat",
+    productId: "uuid-prod-004",
+    productName: "Coffee Machine Deluxe",
+    productSku: "CFE-001",
+    borrowQuantity: 1,
+    returnedQuantity: 1,
+    status: "partial",
+    borrowDate: "2024-01-12T16:45:00Z",
+    returnDate: "2024-01-18T09:30:00Z",
+    notes: "Demo untuk cafe - dikembalikan sebagian (unit rusak)",
+    createdAt: "2024-01-12T16:45:00Z",
+    updatedAt: "2024-01-18T09:30:00Z"
+  }
+];
+
+function StatusBadge({ status }) {
   const statusConfig = {
-    active: { color: "bg-green-100 text-green-800", icon: Package },
-    returned: { color: "bg-blue-100 text-blue-800", icon: CheckCircle },
-    pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock }
+    "borrowed": "bg-orange-100 text-orange-800",
+    "partial": "bg-blue-100 text-blue-800",
+    "returned": "bg-green-100 text-green-800"
   };
 
-  const config = statusConfig[status] || statusConfig.active;
-  const Icon = config.icon;
+  const statusIcons = {
+    "borrowed": Clock,
+    "partial": PackageOpen,
+    "returned": CheckCircle
+  };
+
+  const Icon = statusIcons[status] || Package;
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig[status] || "bg-gray-100 text-gray-800"}`}>
       <Icon className="w-3 h-3" />
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
 }
 
-function InsuranceBadge({ covered }) {
-  return covered ? (
-    <Badge className="bg-green-100 text-green-800 border-green-200">
-      <CheckCircle className="w-3 h-3 mr-1" />
-      Insured
-    </Badge>
-  ) : (
-    <Badge variant="outline" className="text-orange-600 border-orange-300">
-      <AlertTriangle className="w-3 h-3 mr-1" />
-      No Insurance
-    </Badge>
+function generateBorrowCode() {
+  const date = new Date();
+  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `BOR-${dateStr}-${random}`;
+}
+
+// Borrow Form Component
+function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
+  const [formData, setFormData] = useState({
+    salesId: borrow?.salesId || "",
+    productId: borrow?.productId || "",
+    borrowQuantity: borrow?.borrowQuantity || 1,
+    notes: borrow?.notes || ""
+  });
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const selectedSales = mockSales.find(s => s.id === formData.salesId);
+    const selectedProduct = mockProducts.find(p => p.id === formData.productId);
+
+    if (!selectedSales || !selectedProduct) {
+      alert('Please select valid sales and product');
+      return;
+    }
+
+    const availableStock = selectedProduct.currentStock - selectedProduct.borrowedStock;
+    if (formData.borrowQuantity > availableStock) {
+      alert(`Only ${availableStock} units available for borrow`);
+      return;
+    }
+
+    onSave({
+      ...formData,
+      id: borrow?.id || `uuid-${Date.now()}`,
+      borrowCode: borrow?.borrowCode || generateBorrowCode(),
+      salesName: selectedSales.name,
+      salesArea: selectedSales.area,
+      productName: selectedProduct.name,
+      productSku: selectedProduct.sku,
+      returnedQuantity: borrow?.returnedQuantity || 0,
+      status: borrow?.status || "borrowed",
+      borrowDate: borrow?.borrowDate || new Date().toISOString(),
+      returnDate: borrow?.returnDate,
+      createdAt: borrow?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  };
+
+  const selectedProduct = mockProducts.find(p => p.id === formData.productId);
+  const availableStock = selectedProduct ? selectedProduct.currentStock - selectedProduct.borrowedStock : 0;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onCancel}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>
+            {borrow ? "Edit Borrow" : "New Borrow Request"}
+          </DialogTitle>
+          <DialogDescription>
+            {borrow ? "Update borrow information below." : "Create a new product borrow request for sales demonstration."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="salesId">Sales Person</Label>
+              <Select value={formData.salesId} onValueChange={(value) => handleInputChange("salesId", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sales" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockSales.filter(s => s.isActive).map((sales) => (
+                    <SelectItem key={sales.id} value={sales.id}>
+                      <div className="flex items-center gap-2">
+                        {sales.image ? (
+                          <img
+                            src={sales.image}
+                            alt={sales.name}
+                            className="w-5 h-5 rounded-full"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextElementSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center" style={{display: sales.image ? 'none' : 'flex'}}>
+                          <span className="text-xs">{sales.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <div className="font-medium">{sales.name}</div>
+                          <div className="text-xs text-gray-500">{sales.area}</div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="productId">Product</Label>
+              <Select value={formData.productId} onValueChange={(value) => handleInputChange("productId", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select product" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockProducts.map((product) => {
+                    const available = product.currentStock - product.borrowedStock;
+                    return (
+                      <SelectItem key={product.id} value={product.id} disabled={available <= 0}>
+                        <div>
+                          <div className="font-medium">{product.name}</div>
+                          <div className="text-xs text-gray-500">
+                            SKU: {product.sku} | Available: {available} units
+                          </div>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="borrowQuantity">Quantity</Label>
+              <Input
+                id="borrowQuantity"
+                type="number"
+                min="1"
+                max={availableStock}
+                value={formData.borrowQuantity}
+                onChange={(e) => handleInputChange("borrowQuantity", parseInt(e.target.value) || 1)}
+                placeholder="Enter quantity"
+                required
+              />
+              {selectedProduct && (
+                <p className="text-xs text-gray-500">
+                  Available: {availableStock} units
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Enter notes about the borrow purpose..."
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              {borrow ? "Update" : "Create"} Borrow
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 export default function BorrowsPage() {
-  const [borrows] = useState(mockBorrows);
-  const [selectedBorrows, setSelectedBorrows] = useState([]);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({});
+  const [borrows, setBorrows] = useState(mockBorrows);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingBorrow, setEditingBorrow] = useState(null);
+
+  const handleAddBorrow = () => {
+    setEditingBorrow(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditBorrow = (borrow) => {
+    setEditingBorrow(borrow);
+    setIsFormOpen(true);
+  };
+
+  const handleSaveBorrow = (borrowData) => {
+    if (editingBorrow) {
+      // Update existing borrow
+      setBorrows(prev => prev.map(b =>
+        b.id === borrowData.id ? borrowData : b
+      ));
+    } else {
+      // Add new borrow
+      setBorrows(prev => [...prev, borrowData]);
+
+      // Update product borrowed stock
+      const product = mockProducts.find(p => p.id === borrowData.productId);
+      if (product) {
+        product.borrowedStock += borrowData.borrowQuantity;
+      }
+    }
+    setIsFormOpen(false);
+    setEditingBorrow(null);
+  };
+
+  const handleCancelForm = () => {
+    setIsFormOpen(false);
+    setEditingBorrow(null);
+  };
+
+  const handleDeleteBorrow = (borrow) => {
+    if (confirm(`Are you sure you want to delete borrow "${borrow.borrowCode}"?`)) {
+      setBorrows(prev => prev.filter(b => b.id !== borrow.id));
+
+      // Update product borrowed stock
+      const product = mockProducts.find(p => p.id === borrow.productId);
+      if (product) {
+        product.borrowedStock -= borrow.borrowQuantity;
+      }
+    }
+  };
+
+  const handleReturnBorrow = (borrow) => {
+    if (confirm(`Mark borrow "${borrow.borrowCode}" as returned? This will update the inventory stock.`)) {
+      const updatedBorrow = {
+        ...borrow,
+        returnedQuantity: borrow.borrowQuantity,
+        status: "returned",
+        returnDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      setBorrows(prev => prev.map(b =>
+        b.id === borrow.id ? updatedBorrow : b
+      ));
+
+      // Update product stock
+      const product = mockProducts.find(p => p.id === borrow.productId);
+      if (product) {
+        product.borrowedStock -= borrow.borrowQuantity;
+        product.currentStock += borrow.borrowQuantity;
+      }
+    }
+  };
+
+  const handleViewBorrow = (borrow) => {
+    const status = borrow.status === 'borrowed' && new Date(borrow.expectedReturnDate) < new Date() ? 'overdue' : borrow.status;
+    alert(`Borrow Details:\n\nBorrow Code: ${borrow.borrowCode}\nSales: ${borrow.salesName} (${borrow.salesArea})\nProduct: ${borrow.productName} (${borrow.productSku})\nQuantity: ${borrow.borrowQuantity} units\nStatus: ${status}\nBorrow Date: ${new Date(borrow.borrowDate).toLocaleString('id-ID')}\nExpected Return: ${new Date(borrow.expectedReturnDate).toLocaleString('id-ID')}\nActual Return: ${borrow.returnDate ? new Date(borrow.returnDate).toLocaleString('id-ID') : 'Not returned'}\nNotes: ${borrow.notes || 'No notes'}`);
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
 
   const columns = [
     {
-      key: "id",
-      title: "Borrow Information",
-      sortable: true,
+      key: "borrowCode",
+      title: "Borrow Code",
+      render: (value) => <div className="font-mono text-sm font-medium">{value}</div>
+    },
+    {
+      key: "salesInfo",
+      title: "Sales Info",
       render: (value, row) => (
-        <div className="space-y-2">
-          <div className="font-medium text-blue-600">{value}</div>
-          <div className="flex items-center gap-2 text-sm">
-            <User className="w-3 h-3 text-gray-400" />
-            <span>{row.salesPerson}</span>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium">
+            {row.salesName.charAt(0).toUpperCase()}
           </div>
-          <div className="text-xs text-gray-500">
-            {row.salesArea}
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-3 h-3 text-gray-400" />
-            <span>{row.hotelName}</span>
+          <div>
+            <div className="font-medium text-sm">{row.salesName}</div>
+            <div className="text-xs text-gray-500">{row.salesArea}</div>
           </div>
         </div>
       )
     },
     {
-      key: "items",
-      title: "Items",
+      key: "productInfo",
+      title: "Product",
       render: (value, row) => (
-        <div className="space-y-1">
-          <div className="text-sm font-medium">{row.items.length} item types</div>
+        <div>
+          <div className="font-medium text-sm">{row.productName}</div>
           <div className="text-xs text-gray-500">
-            Total {row.items.reduce((sum, item) => sum + item.quantity, 0)} units
-          </div>
-          <div className="text-xs text-gray-500 line-clamp-2">
-            {row.items.slice(0, 2).map((item, index) => (
-              <div key={index}>
-                {item.quantity}x {item.name}
-              </div>
-            ))}
-            {row.items.length > 2 && (
-              <div>+{row.items.length - 2} more</div>
-            )}
+            SKU: {row.productSku} | {formatCurrency(mockProducts.find(p => p.id === row.productId)?.sellPrice || 0)}
           </div>
         </div>
       )
     },
     {
-      key: "totalValue",
-      title: "Total Value",
-      sortable: true,
-      render: (value) => (
-        <div className="text-sm font-medium">
-          Rp {value.toLocaleString('id-ID')}
+      key: "quantity",
+      title: "Quantity",
+      render: (value, row) => (
+        <div className="text-sm">
+          <div className="font-medium">{row.borrowQuantity} units</div>
+          {row.returnedQuantity > 0 && (
+            <div className="text-xs text-gray-500">
+              {row.returnedQuantity} returned
+            </div>
+          )}
         </div>
       )
     },
     {
       key: "status",
       title: "Status",
-      sortable: true,
-      render: (value, row) => (
-        <div className="space-y-1">
-          <StatusBadge status={row.status} overdueDays={row.overdueDays} />
-          <InsuranceBadge covered={row.insuranceCoverage} />
-        </div>
-      )
+      render: (value, row) => <StatusBadge status={row.status} />
     },
     {
-      key: "borrowDate",
-      title: "Timeline",
-      sortable: true,
+      key: "dates",
+      title: "Dates",
       render: (value, row) => (
-        <div className="text-sm space-y-1">
-          <div>
-            <span className="text-gray-500">Borrow:</span>
-            <div className="font-medium">
-              {row.borrowDate ? new Date(row.borrowDate).toLocaleDateString('id-ID') : 'Pending'}
-            </div>
-          </div>
-          <div>
-            <span className="text-gray-500">Due:</span>
-            <div className="font-medium">
-              {row.expectedReturn ? new Date(row.expectedReturn).toLocaleDateString('id-ID') : '-'}
-            </div>
-          </div>
-          {row.actualReturn && (
-            <div>
-              <span className="text-gray-500">Returned:</span>
-              <div className="font-medium text-green-600">
-                {new Date(row.actualReturn).toLocaleDateString('id-ID')}
-              </div>
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      key: "location",
-      title: "Location",
-      render: (value, row) => (
-        <div className="text-sm line-clamp-2">
-          {row.location}
-        </div>
-      )
-    },
-    {
-      key: "agreementDocument",
-      title: "Documents",
-      render: (value, row) => (
-        <div className="space-y-1">
-          {row.agreementDocument ? (
-            <div className="text-sm text-blue-600 cursor-pointer hover:underline">
-              📄 Agreement
-            </div>
-          ) : (
-            <div className="text-sm text-gray-400">No agreement</div>
-          )}
-          {row.insuranceCoverage && (
-            <div className="text-sm text-green-600 cursor-pointer hover:underline">
-              🛡️ Insurance
+        <div className="text-sm">
+          <div>Borrow: {new Date(row.borrowDate).toLocaleDateString('id-ID')}</div>
+          {row.returnDate && (
+            <div className="text-xs text-green-600">
+              Returned: {new Date(row.returnDate).toLocaleDateString('id-ID')}
             </div>
           )}
         </div>
@@ -358,118 +541,59 @@ export default function BorrowsPage() {
     }
   ];
 
-  const filterOptions = [
-    {
-      key: "status",
-      label: "Borrow Status",
-      type: "select",
-      options: [
-        { value: "all", label: "All Status" },
-        { value: "active", label: "Active" },
-        { value: "returned", label: "Returned" },
-        { value: "overdue", label: "Overdue" },
-        { value: "pending", label: "Pending" }
-      ]
-    },
-    {
-      key: "salesPerson",
-      label: "Sales Person",
-      type: "select",
-      options: [
-        { value: "all", label: "All Sales" },
-        { value: "John Doe", label: "John Doe" },
-        { value: "Jane Smith", label: "Jane Smith" },
-        { value: "Ahmad Rahman", label: "Ahmad Rahman" }
-      ]
-    },
-    {
-      key: "insurance",
-      label: "Insurance",
-      type: "select",
-      options: [
-        { value: "all", label: "All Items" },
-        { value: "insured", label: "Insured Only" },
-        { value: "uninsured", label: "Uninsured Only" }
-      ]
-    }
-  ];
+  // Calculate summary stats
+  const activeBorrows = borrows.filter(b => b.status === 'borrowed').length;
+  const totalBorrows = borrows.length;
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sales Borrow Management</h1>
-          <p className="text-gray-500">Manage item borrows for sales demonstrations and hotel displays</p>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <PackageOpen className="w-6 h-6" />
+            Sales Borrow Management
+          </h1>
+          <p className="text-gray-500">Manage product borrows for sales demonstrations</p>
         </div>
-        <Button>
+        <Button onClick={handleAddBorrow}>
           <Plus className="w-4 h-4 mr-2" />
-          New Borrow Request
+          New Borrow
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Borrows</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{borrowStats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              All time
-            </p>
+            <div className="text-2xl font-bold">{totalBorrows}</div>
+            <p className="text-xs text-muted-foreground">All borrow records</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Borrows</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{activeBorrows}</div>
+            <p className="text-xs text-muted-foreground">Currently borrowed</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Products on Borrow</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{borrowStats.active}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently borrowed
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{borrowStats.overdue}</div>
-            <p className="text-xs text-muted-foreground">
-              Need attention
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Value</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              Rp {(borrowStats.activeValue / 1000000).toFixed(1)}M
+            <div className="text-2xl font-bold">
+              {borrows.filter(b => b.status !== 'returned').reduce((sum, b) => sum + b.borrowQuantity, 0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Out on loan
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Items Outstanding</CardTitle>
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{borrowStats.itemsOutstanding}</div>
-            <p className="text-xs text-muted-foreground">
-              Total units
-            </p>
+            <p className="text-xs text-muted-foreground">Total units borrowed</p>
           </CardContent>
         </Card>
       </div>
@@ -478,43 +602,27 @@ export default function BorrowsPage() {
       <DataTable
         columns={columns}
         data={borrows}
-        searchKey="id"
-        filters={filterOptions}
         searchable={true}
-        filterable={true}
-        selectable={true}
-        selectedRows={selectedBorrows}
-        onSelectedRowsChange={setSelectedBorrows}
-        pagination={{
-          total: borrows.length,
-          page: 1,
-          pageSize: 10
-        }}
-        onSearch={setSearchTerm}
-        onFilter={(key, value) => {
-          setFilters(prev => ({ ...prev, [key]: value }));
-        }}
         emptyMessage="No borrow records found"
         actions={[
+          { label: "View", icon: Eye, onClick: handleViewBorrow },
+          { label: "Edit", icon: Edit, onClick: handleEditBorrow },
           {
-            label: "Approve Request",
-            icon: CheckCircle,
-            onClick: (ids) => console.log("Approve", ids),
-            disabled: selectedBorrows.length === 0
+            label: "Return",
+            icon: RotateCcw,
+            onClick: handleReturnBorrow,
+            condition: (borrow) => borrow.status !== 'returned'
           },
-          {
-            label: "Extend Period",
-            icon: Calendar,
-            onClick: (ids) => console.log("Extend", ids),
-            disabled: selectedBorrows.length === 0
-          },
-          {
-            label: "Return Items",
-            icon: RefreshCw,
-            onClick: (ids) => console.log("Return", ids),
-            disabled: selectedBorrows.length === 0
-          }
+          { label: "Delete", icon: Trash2, onClick: handleDeleteBorrow }
         ]}
+      />
+
+      {/* Borrow Form Modal */}
+      <BorrowForm
+        borrow={editingBorrow}
+        onSave={handleSaveBorrow}
+        onCancel={handleCancelForm}
+        isOpen={isFormOpen}
       />
     </div>
   );

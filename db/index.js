@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+config();
 import { drizzle } from 'drizzle-orm/mysql2';
 import * as schema from './schema';
 
