@@ -56,7 +56,7 @@ function ReadOnlyCustomerInfo({ userData }) {
   );
 }
 
-// Checkout Form Component
+// Checkout Form Component (Read-Only)
 function CheckoutForm({ form, onSubmit, isSubmitting, checkoutData }) {
   return (
     <Card>
@@ -70,30 +70,22 @@ function CheckoutForm({ form, onSubmit, isSubmitting, checkoutData }) {
               <Label htmlFor="kecamatan">Kecamatan *</Label>
               <Input
                 id="kecamatan"
-                placeholder="Masukkan kecamatan"
                 {...form.register('kecamatan')}
-                disabled={isSubmitting}
+                disabled={true}
+                className="bg-gray-50 text-gray-700"
+                readOnly
               />
-              {form.formState.errors.kecamatan && (
-                <p className="text-sm text-red-600">
-                  {form.formState.errors.kecamatan.message}
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="kotaKabupaten">Kota/Kabupaten *</Label>
               <Input
                 id="kotaKabupaten"
-                placeholder="Masukkan kota/kabupaten"
                 {...form.register('kotaKabupaten')}
-                disabled={isSubmitting}
+                disabled={true}
+                className="bg-gray-50 text-gray-700"
+                readOnly
               />
-              {form.formState.errors.kotaKabupaten && (
-                <p className="text-sm text-red-600">
-                  {form.formState.errors.kotaKabupaten.message}
-                </p>
-              )}
             </div>
           </div>
 
@@ -101,16 +93,11 @@ function CheckoutForm({ form, onSubmit, isSubmitting, checkoutData }) {
             <Label htmlFor="kodePos">Kode Pos *</Label>
             <Input
               id="kodePos"
-              placeholder="Masukkan 5 digit kode pos"
-              maxLength={5}
               {...form.register('kodePos')}
-              disabled={isSubmitting}
+              disabled={true}
+              className="bg-gray-50 text-gray-700"
+              readOnly
             />
-            {form.formState.errors.kodePos && (
-              <p className="text-sm text-red-600">
-                {form.formState.errors.kodePos.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -267,9 +254,9 @@ export default function CheckoutPage() {
   const form = useForm({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
-      kecamatan: '',
-      kotaKabupaten: '',
-      kodePos: '',
+      kecamatan: 'Menteng',
+      kotaKabupaten: 'Jakarta Pusat',
+      kodePos: '10310',
       catatan: ''
     }
   });

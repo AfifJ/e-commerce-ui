@@ -179,7 +179,7 @@ export default function CartSummary({
       </div>
 
       {/* Desktop Version - Sidebar */}
-      <div className="hidden lg:block lg:sticky lg:top-24 lg:w-96">
+      <div className="hidden lg:block lg:sticky lg:top-24">
         <div className="bg-white rounded-lg border shadow-sm p-6">
           {/* Header */}
           <div className="flex items-center gap-2 mb-4">

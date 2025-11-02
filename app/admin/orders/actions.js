@@ -18,61 +18,54 @@ export async function getOrders(search = '', page = 1, limit = 10, statusFilter 
   try {
     const offset = (page - 1) * limit;
 
-    // Base query for orders with related data
+    // Base query for orders with related data using subqueries
     let query = db.select({
       // Order fields
       id: orders.id,
       orderNumber: orders.orderNumber,
-      userId: orders.userId,
+      userId: orders.user_id,
       status: orders.status,
       subtotal: orders.subtotal,
-      taxAmount: orders.taxAmount,
-      shippingCost: orders.shippingCost,
-      discountAmount: orders.discountAmount,
-      totalAmount: orders.totalAmount,
-      hotelCommission: orders.hotelCommission,
-      salesCommission: orders.salesCommission,
+      taxAmount: orders.tax_amount,
+      shippingCost: orders.shipping_cost,
+      discountAmount: orders.discount_amount,
+      totalAmount: orders.total_amount,
+      hotelCommission: orders.hotel_commission,
+      salesCommission: orders.sales_commission,
       notes: orders.notes,
-      cancellationReason: orders.cancellationReason,
-      shippingAddress: orders.shippingAddress,
-      createdAt: orders.createdAt,
-      updatedAt: orders.updatedAt,
+      cancellationReason: orders.cancellation_reason,
+      shippingAddress: orders.shipping_address,
+      createdAt: orders.created_at,
+      updatedAt: orders.updated_at,
 
-      // Related data
-      userName: sql`customer_users.name`.mapWith(String),
-      userEmail: sql`customer_users.email`.mapWith(String),
-      userPhone: sql`customer_users.phone`.mapWith(String),
-      hotelName: sql`hotels.name`.mapWith(String),
-      salesName: sql`sales_users.name`.mapWith(String),
-      salesEmail: sql`sales_users.email`.mapWith(String),
+      // Related data using subqueries
+      userName: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orders}.user_id)`.mapWith(String),
+      userEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orders}.user_id)`.mapWith(String),
+      hotelName: sql`(SELECT name FROM ${hotels} WHERE ${hotels}.id = ${orders}.hotel_id)`.mapWith(String),
+      salesName: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orders}.sales_id)`.mapWith(String),
+      salesEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orders}.sales_id)`.mapWith(String),
 
       // Payment information
       paymentId: payments.id,
-      paymentMethod: payments.paymentMethod,
+      paymentMethod: payments.payment_method,
       paymentStatus: payments.status,
-      paymentGateway: payments.paymentGateway,
-      paidAt: payments.paidAt,
+      paymentGateway: payments.payment_gateway,
+      paidAt: payments.paid_at,
 
       // Item count
       itemCount: count(orderItems.id).mapWith(Number)
     })
     .from(orders)
-    .leftJoin(users.as('customer_users'), eq(orders.userId, sql`customer_users.id`))
-    .leftJoin(hotels, eq(orders.hotelId, hotels.id))
-    .leftJoin(users.as('sales_users'), eq(orders.salesId, sql`sales_users.id`))
-    .leftJoin(payments, eq(orders.id, payments.orderId))
-    .leftJoin(orderItems, eq(orders.id, orderItems.orderId));
+    .leftJoin(payments, eq(orders.id, payments.order_id))
+    .leftJoin(orderItems, eq(orders.id, orderItems.order_id));
 
     // Add search filter if provided
     if (search) {
       query = query.where(
         or(
           like(orders.orderNumber, `%${search}%`),
-          like(sql`customer_users.name`, `%${search}%`),
-          like(sql`customer_users.email`, `%${search}%`),
-          like(sql`sales_users.name`, `%${search}%`),
-          like(sql`hotels.name`, `%${search}%`),
-          like(orders.shippingAddress, `%${search}%`)
+          like(orders.shipping_address, `%${search}%`),
+          like(orders.notes, `%${search}%`)
         )
       );
     }
@@ -85,35 +78,23 @@ export async function getOrders(search = '', page = 1, limit = 10, statusFilter 
     // Group by order fields and order
     query = query.groupBy(
       orders.id,
-      sql`customer_users.name`,
-      sql`customer_users.email`,
-      sql`customer_users.phone`,
-      sql`hotels.name`,
-      sql`sales_users.name`,
-      sql`sales_users.email`,
       payments.id,
       payments.paymentMethod,
       payments.status,
       payments.paymentGateway,
       payments.paidAt
-    ).orderBy(desc(orders.createdAt));
+    ).orderBy(desc(orders.created_at));
 
     // Get total count for pagination
     let countQuery = db.select({ count: count() })
-      .from(orders)
-      .leftJoin(users.as('customer_users'), eq(orders.userId, sql`customer_users.id`))
-      .leftJoin(hotels, eq(orders.hotelId, hotels.id))
-      .leftJoin(users.as('sales_users'), eq(orders.salesId, sql`sales_users.id`));
+      .from(orders);
 
     if (search) {
       countQuery = countQuery.where(
         or(
           like(orders.orderNumber, `%${search}%`),
-          like(sql`customer_users.name`, `%${search}%`),
-          like(sql`customer_users.email`, `%${search}%`),
-          like(sql`sales_users.name`, `%${search}%`),
-          like(sql`hotels.name`, `%${search}%`),
-          like(orders.shippingAddress, `%${search}%`)
+          like(orders.shipping_address, `%${search}%`),
+          like(orders.notes, `%${search}%`)
         )
       );
     }
@@ -157,51 +138,46 @@ export async function getOrderById(id) {
       // Order fields
       id: orders.id,
       orderNumber: orders.orderNumber,
-      userId: orders.userId,
-      hotelId: orders.hotelId,
-      salesId: orders.salesId,
+      userId: orders.user_id,
+      hotelId: orders.hotel_id,
+      salesId: orders.sales_id,
       status: orders.status,
       subtotal: orders.subtotal,
-      taxAmount: orders.taxAmount,
-      shippingCost: orders.shippingCost,
-      discountAmount: orders.discountAmount,
-      totalAmount: orders.totalAmount,
-      hotelCommission: orders.hotelCommission,
-      salesCommission: orders.salesCommission,
+      taxAmount: orders.tax_amount,
+      shippingCost: orders.shipping_cost,
+      discountAmount: orders.discount_amount,
+      totalAmount: orders.total_amount,
+      hotelCommission: orders.hotel_commission,
+      salesCommission: orders.sales_commission,
       notes: orders.notes,
-      cancellationReason: orders.cancellationReason,
-      shippingAddress: orders.shippingAddress,
-      createdAt: orders.createdAt,
-      updatedAt: orders.updatedAt,
+      cancellationReason: orders.cancellation_reason,
+      shippingAddress: orders.shipping_address,
+      createdAt: orders.created_at,
+      updatedAt: orders.updated_at,
 
-      // Related data
-      userName: sql`customer_users.name`.mapWith(String),
-      userEmail: sql`customer_users.email`.mapWith(String),
-      userPhone: sql`customer_users.phone`.mapWith(String),
-      hotelName: sql`hotels.name`.mapWith(String),
-      hotelAddress: sql`hotels.address`.mapWith(String),
-      salesName: sql`sales_users.name`.mapWith(String),
-      salesEmail: sql`sales_users.email`.mapWith(String),
-      salesPhone: sql`sales_users.phone`.mapWith(String),
+      // Related data using subqueries
+      userName: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orders}.user_id)`.mapWith(String),
+      userEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orders}.user_id)`.mapWith(String),
+      hotelName: sql`(SELECT name FROM ${hotels} WHERE ${hotels}.id = ${orders}.hotel_id)`.mapWith(String),
+      hotelAddress: sql`(SELECT address FROM ${hotels} WHERE ${hotels}.id = ${orders}.hotel_id)`.mapWith(String),
+      salesName: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orders}.sales_id)`.mapWith(String),
+      salesEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orders}.sales_id)`.mapWith(String),
 
       // Payment information
       paymentId: payments.id,
-      paymentMethod: payments.paymentMethod,
+      paymentMethod: payments.payment_method,
       paymentStatus: payments.status,
-      paymentGateway: payments.paymentGateway,
-      gatewayReference: payments.gatewayReference,
+      paymentGateway: payments.payment_gateway,
+      gatewayReference: payments.gateway_reference,
       currency: payments.currency,
-      paidAt: payments.paidAt,
-      qrCodeUrl: payments.qrCodeUrl,
-      proofImage: payments.proofImage,
-      adminVerified: payments.adminVerified,
-      verifiedAt: payments.verifiedAt
+      paidAt: payments.paid_at,
+      qrCodeUrl: payments.qr_code_url,
+      proofImage: payments.proof_image,
+      adminVerified: payments.admin_verified,
+      verifiedAt: payments.verified_at
     })
     .from(orders)
-    .leftJoin(users.as('customer_users'), eq(orders.userId, sql`customer_users.id`))
-    .leftJoin(hotels, eq(orders.hotelId, hotels.id))
-    .leftJoin(users.as('sales_users'), eq(orders.salesId, sql`sales_users.id`))
-    .leftJoin(payments, eq(orders.id, payments.orderId))
+    .leftJoin(payments, eq(orders.id, payments.order_id))
     .where(eq(orders.id, id))
     .limit(1);
 
@@ -222,26 +198,25 @@ export async function getOrderItems(orderId) {
     const items = await db.select({
       // Item fields
       id: orderItems.id,
-      orderId: orderItems.orderId,
-      productId: orderItems.productId,
-      productName: orderItems.productName,
+      orderId: orderItems.order_id,
+      productId: orderItems.product_id,
+      productName: orderItems.product_name,
       quantity: orderItems.quantity,
-      unitPrice: orderItems.unitPrice,
-      totalPrice: orderItems.totalPrice,
-      createdAt: orderItems.createdAt,
+      unitPrice: orderItems.unit_price,
+      totalPrice: orderItems.total_price,
+      createdAt: orderItems.created_at,
 
       // Related data
       productImage: sql`products.images`.mapWith(String),
       productSku: sql`products.sku`.mapWith(String),
-      vendorName: sql`vendors.name`.mapWith(String),
-      vendorEmail: sql`vendors.email`.mapWith(String),
-      vendorId: sql`vendors.id`.mapWith(String)
+      vendorName: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orderItems}.vendor_id)`.mapWith(String),
+      vendorEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orderItems}.vendor_id)`.mapWith(String),
+      vendorId: orderItems.vendor_id
     })
     .from(orderItems)
-    .leftJoin(products, eq(orderItems.productId, products.id))
-    .leftJoin(users.as('vendors'), eq(sql`vendors.id`, sql`vendors.id`))
-    .where(eq(orderItems.orderId, orderId))
-    .orderBy(orderItems.createdAt);
+    .leftJoin(products, eq(orderItems.product_id, products.id))
+    .where(eq(orderItems.order_id, orderId))
+    .orderBy(orderItems.created_at);
 
     return { success: true, data: items };
   } catch (error) {
@@ -255,20 +230,19 @@ export async function getOrderStatusHistory(orderId) {
   try {
     const history = await db.select({
       id: orderStatusHistory.id,
-      orderId: orderStatusHistory.orderId,
-      fromStatus: orderStatusHistory.fromStatus,
-      toStatus: orderStatusHistory.toStatus,
+      orderId: orderStatusHistory.order_id,
+      fromStatus: orderStatusHistory.from_status,
+      toStatus: orderStatusHistory.to_status,
       notes: orderStatusHistory.notes,
-      createdAt: orderStatusHistory.createdAt,
+      createdAt: orderStatusHistory.created_at,
 
       // Creator information
-      createdBy: sql`status_users.name`.mapWith(String),
-      createdByEmail: sql`status_users.email`.mapWith(String)
+      createdBy: sql`(SELECT name FROM ${users} WHERE ${users}.id = ${orderStatusHistory}.created_by)`.mapWith(String),
+      createdByEmail: sql`(SELECT email FROM ${users} WHERE ${users}.id = ${orderStatusHistory}.created_by)`.mapWith(String)
     })
     .from(orderStatusHistory)
-    .leftJoin(users.as('status_users'), eq(orderStatusHistory.createdBy, sql`status_users.id`))
-    .where(eq(orderStatusHistory.orderId, orderId))
-    .orderBy(desc(orderStatusHistory.createdAt));
+    .where(eq(orderStatusHistory.order_id, orderId))
+    .orderBy(desc(orderStatusHistory.created_at));
 
     return { success: true, data: history };
   } catch (error) {
@@ -321,19 +295,19 @@ export async function updateOrderStatus(orderId, newStatus, notes = null, userId
       .update(orders)
       .set({
         status: newStatus,
-        updatedAt: new Date()
+        updated_at: new Date()
       })
       .where(eq(orders.id, orderId));
 
     // Create status history record
     await db.insert(orderStatusHistory).values({
       id: crypto.randomUUID(),
-      orderId: orderId,
-      fromStatus: currentStatus,
-      toStatus: newStatus,
+      order_id: orderId,
+      from_status: currentStatus,
+      to_status: newStatus,
       notes: notes,
-      createdBy: userId,
-      createdAt: new Date()
+      created_by: userId,
+      created_at: new Date()
     });
 
     // Get updated order

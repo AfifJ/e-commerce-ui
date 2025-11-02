@@ -199,7 +199,7 @@ export const useAuthStore = create(
             return "/mitra/dashboard";
           case "customer":
           default:
-            return "/account";
+            return "/";
         }
       },
     }),

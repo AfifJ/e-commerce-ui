@@ -49,10 +49,11 @@ export async function proxy(request) {
     }
 
     // If session exists and user is on root or home, redirect based on role
-    if (session?.user && (pathname === '/' || pathname === '/home')) {
+    // But skip if customer is already on root (to prevent infinite loop)
+    if (session?.user && (pathname === '/home')) {
       const { role } = session.user;
       const url = request.nextUrl.clone();
-      
+
       // Redirect based on user role
       switch (role) {
         case 'admin':
@@ -69,10 +70,10 @@ export async function proxy(request) {
           break;
         case 'customer':
         default:
-          url.pathname = '/account';
+          url.pathname = '/';
           break;
       }
-      
+
       return NextResponse.redirect(url);
     }
 

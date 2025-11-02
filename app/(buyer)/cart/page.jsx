@@ -117,10 +117,10 @@ function CartContent() {
       <CartHeader itemCount={totalItems} />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pt-4 pb-32 lg:pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="container mx-auto px-4 pt-4 pb-32 lg:pb-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Cart Items */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-2">
             <div className="space-y-4">
               {/* Cart Items Header (Desktop) */}
               <div className="hidden lg:flex items-center bg-white rounded-lg border p-4 text-sm font-medium text-gray-700">
@@ -161,7 +161,7 @@ function CartContent() {
           </div>
 
           {/* Right Column - Cart Summary */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-1">
             <CartSummary
               items={items}
               subtotal={subtotal}

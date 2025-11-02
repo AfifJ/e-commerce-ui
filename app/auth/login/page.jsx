@@ -46,10 +46,10 @@ export default function LoginPage() {
         vendor: '/vendor/dashboard',
         sales: '/sales/dashboard',
         mitra: '/mitra/dashboard',
-        buyer: '/'
+        customer: '/'
       };
 
-      const redirectPath = redirectMap[currentUser?.role] || '/account';
+      const redirectPath = redirectMap[currentUser?.role] || '/';
       router.push(redirectPath);
     }
   }, [isAuthenticated, router]);
@@ -81,8 +81,12 @@ export default function LoginPage() {
         return;
       }
 
+      // Debug log
+      console.log("Login successful. User role:", result.data.user?.role);
+
       // Redirect berdasarkan role user
       const redirectPath = getRedirectPath(result.data.user?.role);
+      console.log("Redirecting to:", redirectPath);
       router.push(redirectPath);
     } catch (error) {
       console.error("Login error:", error);

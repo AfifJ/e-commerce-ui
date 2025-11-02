@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/app/admin/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,152 +36,18 @@ import {
   Clock,
   RotateCcw,
   PackageOpen,
+  RefreshCw,
 } from "lucide-react";
+import {
+  getBorrows,
+  getSalesUsers,
+  getAvailableProductsForBorrow,
+  createBorrow,
+  updateBorrow,
+  returnBorrow,
+  deleteBorrow
+} from "./actions";
 
-// Mock data matching database schema
-const mockSales = [
-  {
-    id: "uuid-sales-001",
-    name: "John Doe",
-    username: "johndoe",
-    email: "john.doe@example.com",
-    area: "Jakarta Pusat",
-    isActive: true,
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=johndoe"
-  },
-  {
-    id: "uuid-sales-002",
-    name: "Jane Smith",
-    username: "janesmith",
-    email: "jane.smith@example.com",
-    area: "Jakarta Selatan",
-    isActive: true,
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=janesmith"
-  },
-  {
-    id: "uuid-sales-003",
-    name: "Ahmad Rahman",
-    username: "ahmadr",
-    email: "ahmad.rahman@example.com",
-    area: "Jakarta Barat",
-    isActive: true,
-    image: null
-  }
-];
-
-const mockProducts = [
-  {
-    id: "uuid-prod-001",
-    name: "Laptop ASUS ROG",
-    sku: "LAP-001",
-    category: "Elektronik",
-    currentStock: 25,
-    borrowedStock: 5,
-    sellPrice: 15000000
-  },
-  {
-    id: "uuid-prod-002",
-    name: "Mouse Gaming",
-    sku: "MOU-001",
-    category: "Elektronik",
-    currentStock: 100,
-    borrowedStock: 10,
-    sellPrice: 250000
-  },
-  {
-    id: "uuid-prod-003",
-    name: "Smart TV LG 43 inch",
-    sku: "TV-001",
-    category: "Elektronik",
-    currentStock: 15,
-    borrowedStock: 3,
-    sellPrice: 4500000
-  },
-  {
-    id: "uuid-prod-004",
-    name: "Coffee Machine Deluxe",
-    sku: "CFE-001",
-    category: "Rumah Tangga",
-    currentStock: 8,
-    borrowedStock: 2,
-    sellPrice: 4000000
-  }
-];
-
-const mockBorrows = [
-  {
-    id: "uuid-borrow-001",
-    borrowCode: "BOR-20240115-001",
-    salesId: "uuid-sales-001",
-    salesName: "John Doe",
-    salesArea: "Jakarta Pusat",
-    productId: "uuid-prod-001",
-    productName: "Laptop ASUS ROG",
-    productSku: "LAP-001",
-    borrowQuantity: 1,
-    returnedQuantity: 0,
-    status: "borrowed",
-    borrowDate: "2024-01-15T09:00:00Z",
-    returnDate: null,
-    notes: "Demo untuk client PT Tech Indonesia",
-    createdAt: "2024-01-15T09:00:00Z",
-    updatedAt: "2024-01-15T09:00:00Z"
-  },
-  {
-    id: "uuid-borrow-002",
-    borrowCode: "BOR-20240110-002",
-    salesId: "uuid-sales-002",
-    salesName: "Jane Smith",
-    salesArea: "Jakarta Selatan",
-    productId: "uuid-prod-002",
-    productName: "Mouse Gaming",
-    productSku: "MOU-001",
-    borrowQuantity: 2,
-    returnedQuantity: 2,
-    status: "returned",
-    borrowDate: "2024-01-10T14:30:00Z",
-    returnDate: "2024-01-16T11:20:00Z",
-    notes: "Demo untuk hotel client",
-    createdAt: "2024-01-10T14:30:00Z",
-    updatedAt: "2024-01-16T11:20:00Z"
-  },
-  {
-    id: "uuid-borrow-003",
-    borrowCode: "BOR-20240108-003",
-    salesId: "uuid-sales-003",
-    salesName: "Ahmad Rahman",
-    salesArea: "Jakarta Barat",
-    productId: "uuid-prod-003",
-    productName: "Smart TV LG 43 inch",
-    productSku: "TV-001",
-    borrowQuantity: 1,
-    returnedQuantity: 0,
-    status: "borrowed",
-    borrowDate: "2024-01-08T10:15:00Z",
-    returnDate: null,
-    notes: "Demo untuk restoran client",
-    createdAt: "2024-01-08T10:15:00Z",
-    updatedAt: "2024-01-08T10:15:00Z"
-  },
-  {
-    id: "uuid-borrow-004",
-    borrowCode: "BOR-20240112-004",
-    salesId: "uuid-sales-001",
-    salesName: "John Doe",
-    salesArea: "Jakarta Pusat",
-    productId: "uuid-prod-004",
-    productName: "Coffee Machine Deluxe",
-    productSku: "CFE-001",
-    borrowQuantity: 1,
-    returnedQuantity: 1,
-    status: "partial",
-    borrowDate: "2024-01-12T16:45:00Z",
-    returnDate: "2024-01-18T09:30:00Z",
-    notes: "Demo untuk cafe - dikembalikan sebagian (unit rusak)",
-    createdAt: "2024-01-12T16:45:00Z",
-    updatedAt: "2024-01-18T09:30:00Z"
-  }
-];
 
 function StatusBadge({ status }) {
   const statusConfig = {
@@ -214,13 +80,14 @@ function generateBorrowCode() {
 }
 
 // Borrow Form Component
-function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
+function BorrowForm({ borrow, onSave, onCancel, isOpen, salesUsers, products }) {
   const [formData, setFormData] = useState({
     salesId: borrow?.salesId || "",
     productId: borrow?.productId || "",
     borrowQuantity: borrow?.borrowQuantity || 1,
     notes: borrow?.notes || ""
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -229,42 +96,37 @@ function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const selectedSales = mockSales.find(s => s.id === formData.salesId);
-    const selectedProduct = mockProducts.find(p => p.id === formData.productId);
+    try {
+      const selectedSales = salesUsers.find(s => s.id === formData.salesId);
+      const selectedProduct = products.find(p => p.id === formData.productId);
 
-    if (!selectedSales || !selectedProduct) {
-      alert('Please select valid sales and product');
-      return;
+      if (!selectedSales || !selectedProduct) {
+        alert('Please select valid sales and product');
+        setIsLoading(false);
+        return;
+      }
+
+      if (formData.borrowQuantity <= 0) {
+        alert('Borrow quantity must be greater than 0');
+        setIsLoading(false);
+        return;
+      }
+
+      await onSave(formData);
+    } catch (error) {
+      console.error("Error saving borrow:", error);
+      alert("Failed to save borrow: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    const availableStock = selectedProduct.currentStock - selectedProduct.borrowedStock;
-    if (formData.borrowQuantity > availableStock) {
-      alert(`Only ${availableStock} units available for borrow`);
-      return;
-    }
-
-    onSave({
-      ...formData,
-      id: borrow?.id || `uuid-${Date.now()}`,
-      borrowCode: borrow?.borrowCode || generateBorrowCode(),
-      salesName: selectedSales.name,
-      salesArea: selectedSales.area,
-      productName: selectedProduct.name,
-      productSku: selectedProduct.sku,
-      returnedQuantity: borrow?.returnedQuantity || 0,
-      status: borrow?.status || "borrowed",
-      borrowDate: borrow?.borrowDate || new Date().toISOString(),
-      returnDate: borrow?.returnDate,
-      createdAt: borrow?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
   };
 
-  const selectedProduct = mockProducts.find(p => p.id === formData.productId);
-  const availableStock = selectedProduct ? selectedProduct.currentStock - selectedProduct.borrowedStock : 0;
+  const selectedProduct = products.find(p => p.id === formData.productId);
+  const availableStock = selectedProduct ? selectedProduct.availableStock || 0 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onCancel}>
@@ -287,26 +149,15 @@ function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
                   <SelectValue placeholder="Select sales" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockSales.filter(s => s.isActive).map((sales) => (
+                  {salesUsers.map((sales) => (
                     <SelectItem key={sales.id} value={sales.id}>
                       <div className="flex items-center gap-2">
-                        {sales.image ? (
-                          <img
-                            src={sales.image}
-                            alt={sales.name}
-                            className="w-5 h-5 rounded-full"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center" style={{display: sales.image ? 'none' : 'flex'}}>
-                          <span className="text-xs">{sales.name.charAt(0)}</span>
+                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                          <span className="text-xs">{sales.name.charAt(0).toUpperCase()}</span>
                         </div>
                         <div>
                           <div className="font-medium">{sales.name}</div>
-                          <div className="text-xs text-gray-500">{sales.area}</div>
+                          <div className="text-xs text-gray-500">{sales.username}</div>
                         </div>
                       </div>
                     </SelectItem>
@@ -321,19 +172,16 @@ function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
                   <SelectValue placeholder="Select product" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockProducts.map((product) => {
-                    const available = product.currentStock - product.borrowedStock;
-                    return (
-                      <SelectItem key={product.id} value={product.id} disabled={available <= 0}>
-                        <div>
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-xs text-gray-500">
-                            SKU: {product.sku} | Available: {available} units
-                          </div>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id} disabled={(product.availableStock || 0) <= 0}>
+                      <div>
+                        <div className="font-medium">{product.name}</div>
+                        <div className="text-xs text-gray-500">
+                          SKU: {product.sku} | Available: {product.availableStock || 0} units
                         </div>
-                      </SelectItem>
-                    );
-                  })}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -372,11 +220,11 @@ function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit">
-              {borrow ? "Update" : "Create"} Borrow
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : (borrow ? "Update" : "Create") + " Borrow"}
             </Button>
           </DialogFooter>
         </form>
@@ -386,9 +234,36 @@ function BorrowForm({ borrow, onSave, onCancel, isOpen }) {
 }
 
 export default function BorrowsPage() {
-  const [borrows, setBorrows] = useState(mockBorrows);
+  const [borrows, setBorrows] = useState([]);
+  const [salesUsers, setSalesUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBorrow, setEditingBorrow] = useState(null);
+
+  // Load data
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [borrowsData, salesData, productsData] = await Promise.all([
+        getBorrows(),
+        getSalesUsers(),
+        getAvailableProductsForBorrow()
+      ]);
+      setBorrows(borrowsData);
+      setSalesUsers(salesData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      alert("Failed to load data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleAddBorrow = () => {
     setEditingBorrow(null);
@@ -400,24 +275,23 @@ export default function BorrowsPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveBorrow = (borrowData) => {
-    if (editingBorrow) {
-      // Update existing borrow
-      setBorrows(prev => prev.map(b =>
-        b.id === borrowData.id ? borrowData : b
-      ));
-    } else {
-      // Add new borrow
-      setBorrows(prev => [...prev, borrowData]);
-
-      // Update product borrowed stock
-      const product = mockProducts.find(p => p.id === borrowData.productId);
-      if (product) {
-        product.borrowedStock += borrowData.borrowQuantity;
+  const handleSaveBorrow = async (borrowData) => {
+    try {
+      if (editingBorrow) {
+        // Update existing borrow
+        const updated = await updateBorrow(editingBorrow.id, borrowData);
+        setBorrows(prev => prev.map(b => b.id === updated.id ? updated : b));
+      } else {
+        // Add new borrow
+        const created = await createBorrow(borrowData);
+        setBorrows(prev => [...prev, created]);
       }
+      setIsFormOpen(false);
+      setEditingBorrow(null);
+    } catch (error) {
+      console.error("Error saving borrow:", error);
+      throw error;
     }
-    setIsFormOpen(false);
-    setEditingBorrow(null);
   };
 
   const handleCancelForm = () => {
@@ -425,44 +299,34 @@ export default function BorrowsPage() {
     setEditingBorrow(null);
   };
 
-  const handleDeleteBorrow = (borrow) => {
+  const handleDeleteBorrow = async (borrow) => {
     if (confirm(`Are you sure you want to delete borrow "${borrow.borrowCode}"?`)) {
-      setBorrows(prev => prev.filter(b => b.id !== borrow.id));
-
-      // Update product borrowed stock
-      const product = mockProducts.find(p => p.id === borrow.productId);
-      if (product) {
-        product.borrowedStock -= borrow.borrowQuantity;
+      try {
+        await deleteBorrow(borrow.id);
+        setBorrows(prev => prev.filter(b => b.id !== borrow.id));
+      } catch (error) {
+        console.error("Error deleting borrow:", error);
+        alert("Failed to delete borrow");
       }
     }
   };
 
-  const handleReturnBorrow = (borrow) => {
+  const handleReturnBorrow = async (borrow) => {
     if (confirm(`Mark borrow "${borrow.borrowCode}" as returned? This will update the inventory stock.`)) {
-      const updatedBorrow = {
-        ...borrow,
-        returnedQuantity: borrow.borrowQuantity,
-        status: "returned",
-        returnDate: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      setBorrows(prev => prev.map(b =>
-        b.id === borrow.id ? updatedBorrow : b
-      ));
-
-      // Update product stock
-      const product = mockProducts.find(p => p.id === borrow.productId);
-      if (product) {
-        product.borrowedStock -= borrow.borrowQuantity;
-        product.currentStock += borrow.borrowQuantity;
+      try {
+        const updated = await returnBorrow(borrow.id);
+        setBorrows(prev => prev.map(b => b.id === updated.id ? updated : b));
+      } catch (error) {
+        console.error("Error returning borrow:", error);
+        alert("Failed to return borrow");
       }
     }
   };
 
   const handleViewBorrow = (borrow) => {
-    const status = borrow.status === 'borrowed' && new Date(borrow.expectedReturnDate) < new Date() ? 'overdue' : borrow.status;
-    alert(`Borrow Details:\n\nBorrow Code: ${borrow.borrowCode}\nSales: ${borrow.salesName} (${borrow.salesArea})\nProduct: ${borrow.productName} (${borrow.productSku})\nQuantity: ${borrow.borrowQuantity} units\nStatus: ${status}\nBorrow Date: ${new Date(borrow.borrowDate).toLocaleString('id-ID')}\nExpected Return: ${new Date(borrow.expectedReturnDate).toLocaleString('id-ID')}\nActual Return: ${borrow.returnDate ? new Date(borrow.returnDate).toLocaleString('id-ID') : 'Not returned'}\nNotes: ${borrow.notes || 'No notes'}`);
+    const sales = borrow.sales || {};
+    const product = borrow.product || {};
+    alert(`Borrow Details:\n\nBorrow Code: ${borrow.borrowCode}\nSales: ${sales.name || 'Unknown'} (${sales.username || 'N/A'})\nProduct: ${product.name || 'Unknown'} (${product.sku || 'N/A'})\nQuantity: ${borrow.borrowQuantity} units\nReturned: ${borrow.returnedQuantity} units\nStatus: ${borrow.status}\nBorrow Date: ${new Date(borrow.borrowDate).toLocaleString('id-ID')}\nReturn Date: ${borrow.returnDate ? new Date(borrow.returnDate).toLocaleString('id-ID') : 'Not returned'}\nNotes: ${borrow.notes || 'No notes'}`);
   };
 
   const formatCurrency = (amount) => {
@@ -482,29 +346,35 @@ export default function BorrowsPage() {
     {
       key: "salesInfo",
       title: "Sales Info",
-      render: (value, row) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium">
-            {row.salesName.charAt(0).toUpperCase()}
+      render: (value, row) => {
+        const sales = row.sales || {};
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium">
+              {(sales.name || '?').charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="font-medium text-sm">{sales.name || 'Unknown'}</div>
+              <div className="text-xs text-gray-500">{sales.username || 'N/A'}</div>
+            </div>
           </div>
-          <div>
-            <div className="font-medium text-sm">{row.salesName}</div>
-            <div className="text-xs text-gray-500">{row.salesArea}</div>
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: "productInfo",
       title: "Product",
-      render: (value, row) => (
-        <div>
-          <div className="font-medium text-sm">{row.productName}</div>
-          <div className="text-xs text-gray-500">
-            SKU: {row.productSku} | {formatCurrency(mockProducts.find(p => p.id === row.productId)?.sellPrice || 0)}
+      render: (value, row) => {
+        const product = row.product || {};
+        return (
+          <div>
+            <div className="font-medium text-sm">{product.name || 'Unknown'}</div>
+            <div className="text-xs text-gray-500">
+              SKU: {product.sku || 'N/A'} | {formatCurrency(product.sellPrice || 0)}
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: "quantity",
@@ -556,10 +426,16 @@ export default function BorrowsPage() {
           </h1>
           <p className="text-gray-500">Manage product borrows for sales demonstrations</p>
         </div>
-        <Button onClick={handleAddBorrow}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Borrow
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={loadData} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={handleAddBorrow}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Borrow
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -603,7 +479,8 @@ export default function BorrowsPage() {
         columns={columns}
         data={borrows}
         searchable={true}
-        emptyMessage="No borrow records found"
+        emptyMessage={isLoading ? "Loading..." : "No borrow records found"}
+        loading={isLoading}
         actions={[
           { label: "View", icon: Eye, onClick: handleViewBorrow },
           { label: "Edit", icon: Edit, onClick: handleEditBorrow },
@@ -623,6 +500,8 @@ export default function BorrowsPage() {
         onSave={handleSaveBorrow}
         onCancel={handleCancelForm}
         isOpen={isFormOpen}
+        salesUsers={salesUsers}
+        products={products}
       />
     </div>
   );

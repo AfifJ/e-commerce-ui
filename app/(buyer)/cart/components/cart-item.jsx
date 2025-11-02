@@ -219,7 +219,7 @@ export default function CartItem({
       {/* Desktop Layout - Table Style */}
       <div className="hidden lg:block">
         <div className="p-4">
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-start">
             {/* Product Image */}
             <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
               <Image
@@ -232,7 +232,7 @@ export default function CartItem({
             </div>
 
             {/* Product Details */}
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 {/* Product Name & Variant */}
                 <div className="flex-1">
@@ -289,7 +289,7 @@ export default function CartItem({
           </div>
 
           {/* Desktop Table Row */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center gap-4 mt-2 min-w-0 overflow-hidden">
             {/* Price */}
             <div className="w-32">
               <div className="text-lg font-bold text-gray-900">
@@ -310,16 +310,16 @@ export default function CartItem({
                   size="sm"
                   onClick={() => handleQuantityChange(item.quantity - 1)}
                   disabled={item.quantity <= 1 || readOnly}
-                  className="p-2 h-10 rounded-r-none"
+                  className="p-1 h-8 rounded-r-none"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3 h-3" />
                 </Button>
                 <Input
                   type="number"
                   value={item.quantity}
                   onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                   disabled={readOnly}
-                  className="w-16 text-center border-0 rounded-none focus:ring-0"
+                  className="w-10 text-center border-0 rounded-none focus:ring-0 text-sm"
                   min={1}
                   max={item.stock || 99}
                 />
@@ -328,9 +328,9 @@ export default function CartItem({
                   size="sm"
                   onClick={() => handleQuantityChange(item.quantity + 1)}
                   disabled={item.stock && item.quantity >= item.stock || readOnly}
-                  className="p-2 h-10 rounded-l-none"
+                  className="p-1 h-8 rounded-l-none"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3" />
                 </Button>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function CartItem({
             </div>
 
             {/* Actions */}
-            <div className="w-24 flex gap-2">
+            <div className="w-24 flex gap-1">
               {!readOnly && (
                 <>
                   <Button
@@ -351,18 +351,18 @@ export default function CartItem({
                     size="sm"
                     onClick={handleMoveToWishlist}
                     disabled={isMovingToWishlist}
-                    className="flex items-center gap-1"
+                    className="p-1 h-8 w-8"
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className="w-3 h-3" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleRemove}
                     disabled={isRemoving}
-                    className="flex items-center gap-1"
+                    className="p-1 h-8 w-8"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3 h-3" />
                   </Button>
                 </>
               )}

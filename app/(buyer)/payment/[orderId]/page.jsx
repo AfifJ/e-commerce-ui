@@ -205,6 +205,40 @@ function PaymentOrderSummary({ order }) {
   );
 }
 
+// Debug Action Component
+function DebugAction({ orderId, onMarkAsPaid }) {
+  return (
+    <Card className="border-orange-200 bg-orange-50">
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2 text-orange-800">
+          <AlertCircle className="w-5 h-5" />
+          Debug Mode
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-2">
+          <h4 className="font-medium text-orange-900">Aksi Debug:</h4>
+          <p className="text-sm text-orange-700">
+            Gunakan tombol ini untuk simulasi pembayaran berhasil.
+          </p>
+        </div>
+
+        <div className="pt-3 border-t border-orange-200">
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+            onClick={() => onMarkAsPaid(orderId)}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            (debug) Tandai Sudah Dibayar
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Help Section Component
 function HelpSection() {
   return (
@@ -345,6 +379,21 @@ export default function PaymentPage({ params }) {
     setPaymentStatus('expired');
   };
 
+  // Handle debug mark as paid
+  const handleMarkAsPaid = async (orderId) => {
+    try {
+      // Simulate payment processing
+      setPaymentStatus('paid');
+
+      // Redirect to success page after a short delay
+      setTimeout(() => {
+        router.push(`/checkout/success?orderId=${orderId}`);
+      }, 1000);
+    } catch (error) {
+      console.error('Error marking as paid:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -472,6 +521,7 @@ export default function PaymentPage({ params }) {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             <PaymentOrderSummary order={order} />
+            <DebugAction orderId={orderId} onMarkAsPaid={handleMarkAsPaid} />
             <HelpSection />
           </div>
         </div>

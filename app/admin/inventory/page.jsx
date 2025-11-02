@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/app/admin/components/data-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   TrendingDown,
   TrendingUp,
+  RefreshCw,
 } from "lucide-react";
 import {
   Dialog,
@@ -32,139 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getInventory, getProductsForInventory, createInventory, updateInventory, deleteInventory } from "./actions";
 
-// Mock products for foreign key relationship
-const mockProducts = [
-  {
-    id: "uuid-prod-001",
-    name: "Laptop ASUS ROG",
-    slug: "laptop-asus-rog",
-    sku: "LAP-001",
-    buyPrice: "15000000",
-    sellPrice: "18500000",
-    margin: "3500000",
-    commissionRate: 5,
-    weight: 2500,
-    images: ["https://images.unsplash.com/photo-1496181133206-80ce9b88a853"],
-    isActive: true,
-    featured: true,
-    rating: 4.5,
-    stock: 25,
-    categoryId: "uuid-cat-002",
-    vendorId: "uuid-vendor-001"
-  },
-  {
-    id: "uuid-prod-002",
-    name: "Mouse Gaming",
-    slug: "mouse-gaming",
-    sku: "MOU-001",
-    buyPrice: "250000",
-    sellPrice: "350000",
-    margin: "100000",
-    commissionRate: 10,
-    weight: 150,
-    images: ["https://images.unsplash.com/photo-1527864550417-7fd91fc51a46"],
-    isActive: true,
-    featured: false,
-    rating: 4.2,
-    stock: 8,
-    categoryId: "uuid-cat-002",
-    vendorId: "uuid-vendor-001"
-  },
-  {
-    id: "uuid-prod-003",
-    name: "Smart TV LG 43 inch",
-    slug: "smart-tv-lg-43-inch",
-    sku: "TV-001",
-    buyPrice: "5500000",
-    sellPrice: "6999000",
-    margin: "1499000",
-    commissionRate: 7,
-    weight: 12000,
-    images: ["https://images.unsplash.com/photo-1594736797933-d0801ba8d3e6"],
-    isActive: true,
-    featured: true,
-    rating: 4.7,
-    stock: 15,
-    categoryId: "uuid-cat-001",
-    vendorId: "uuid-vendor-002"
-  },
-  {
-    id: "uuid-prod-004",
-    name: "Coffee Machine Deluxe",
-    slug: "coffee-machine-deluxe",
-    sku: "CFE-001",
-    buyPrice: "1200000",
-    sellPrice: "1599000",
-    margin: "399000",
-    commissionRate: 12,
-    weight: 4500,
-    images: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"],
-    isActive: true,
-    featured: false,
-    rating: 4.0,
-    stock: 0,
-    categoryId: "uuid-cat-004",
-    vendorId: "uuid-vendor-003"
-  }
-];
-
-// Mock inventory data matching database schema
-const mockInventory = [
-  {
-    id: "uuid-inv-001",
-    productId: "uuid-prod-001",
-    currentStock: 25,
-    reservedStock: 3,
-    minStock: 10,
-    availableStock: 22,
-    lowStockThreshold: false,
-    outOfStock: false,
-    createdAt: "2024-01-01T08:00:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-    // Product info for display
-    product: mockProducts[0]
-  },
-  {
-    id: "uuid-inv-002",
-    productId: "uuid-prod-002",
-    currentStock: 8,
-    reservedStock: 2,
-    minStock: 10,
-    availableStock: 6,
-    lowStockThreshold: true,
-    outOfStock: false,
-    createdAt: "2024-01-02T09:15:00Z",
-    updatedAt: "2024-01-14T16:20:00Z",
-    product: mockProducts[1]
-  },
-  {
-    id: "uuid-inv-003",
-    productId: "uuid-prod-003",
-    currentStock: 15,
-    reservedStock: 1,
-    minStock: 5,
-    availableStock: 14,
-    lowStockThreshold: false,
-    outOfStock: false,
-    createdAt: "2024-01-03T11:30:00Z",
-    updatedAt: "2024-01-13T14:45:00Z",
-    product: mockProducts[2]
-  },
-  {
-    id: "uuid-inv-004",
-    productId: "uuid-prod-004",
-    currentStock: 0,
-    reservedStock: 0,
-    minStock: 5,
-    availableStock: 0,
-    lowStockThreshold: true,
-    outOfStock: true,
-    createdAt: "2024-01-04T13:20:00Z",
-    updatedAt: "2024-01-12T09:10:00Z",
-    product: mockProducts[3]
-  }
-];
 
 function StockStatusBadge({ currentStock, reservedStock, minStock, availableStock }) {
   const getStatusConfig = () => {
@@ -237,13 +107,14 @@ function ProductInfo({ product }) {
 }
 
 // Inventory Form Component
-function InventoryForm({ inventory, onSave, onCancel, isOpen }) {
+function InventoryForm({ inventory, onSave, onCancel, isOpen, products }) {
   const [formData, setFormData] = useState({
     productId: inventory?.productId || "",
     currentStock: inventory?.currentStock || 0,
     reservedStock: inventory?.reservedStock || 0,
     minStock: inventory?.minStock || 10
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -254,22 +125,35 @@ function InventoryForm({ inventory, onSave, onCancel, isOpen }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const selectedProduct = mockProducts.find(p => p.id === formData.productId);
-    const availableStock = formData.currentStock - formData.reservedStock;
+    try {
+      const selectedProduct = products.find(p => p.id === formData.productId);
+      if (!selectedProduct) {
+        alert("Please select a valid product");
+        setIsLoading(false);
+        return;
+      }
 
-    onSave({
-      ...formData,
-      id: inventory?.id || `uuid-${Date.now()}`,
-      availableStock,
-      lowStockThreshold: availableStock <= formData.minStock,
-      outOfStock: formData.currentStock === 0,
-      product: selectedProduct,
-      createdAt: inventory?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
+      const availableStock = formData.currentStock - formData.reservedStock;
+
+      const data = {
+        ...formData,
+        availableStock,
+        lowStockThreshold: availableStock <= formData.minStock,
+        outOfStock: formData.currentStock === 0,
+        product: selectedProduct
+      };
+
+      await onSave(data);
+    } catch (error) {
+      console.error("Error saving inventory:", error);
+      alert("Failed to save inventory: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -292,7 +176,7 @@ function InventoryForm({ inventory, onSave, onCancel, isOpen }) {
                 <SelectValue placeholder="Select a product" />
               </SelectTrigger>
               <SelectContent>
-                {mockProducts.map((product) => (
+                {products.map((product) => (
                   <SelectItem key={product.id} value={product.id}>
                     {product.name} ({product.sku})
                   </SelectItem>
@@ -349,13 +233,13 @@ function InventoryForm({ inventory, onSave, onCancel, isOpen }) {
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
               <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={isLoading}>
               <Save className="w-4 h-4 mr-2" />
-              {inventory ? "Update" : "Create"} Inventory
+              {isLoading ? "Saving..." : (inventory ? "Update" : "Create") + " Inventory"}
             </Button>
           </DialogFooter>
         </form>
@@ -365,9 +249,33 @@ function InventoryForm({ inventory, onSave, onCancel, isOpen }) {
 }
 
 export default function InventoryPage() {
-  const [inventory, setInventory] = useState(mockInventory);
+  const [inventory, setInventory] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingInventory, setEditingInventory] = useState(null);
+
+  // Load data
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [inventoryData, productsData] = await Promise.all([
+        getInventory(),
+        getProductsForInventory()
+      ]);
+      setInventory(inventoryData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      alert("Failed to load data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleAddInventory = () => {
     setEditingInventory(null);
@@ -379,18 +287,23 @@ export default function InventoryPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveInventory = (inventoryData) => {
-    if (editingInventory) {
-      // Update existing inventory
-      setInventory(prev => prev.map(i =>
-        i.id === inventoryData.id ? inventoryData : i
-      ));
-    } else {
-      // Add new inventory
-      setInventory(prev => [...prev, inventoryData]);
+  const handleSaveInventory = async (inventoryData) => {
+    try {
+      if (editingInventory) {
+        // Update existing inventory
+        const updated = await updateInventory(editingInventory.id, inventoryData);
+        setInventory(prev => prev.map(i => i.id === updated.id ? updated : i));
+      } else {
+        // Add new inventory
+        const created = await createInventory(inventoryData);
+        setInventory(prev => [...prev, created]);
+      }
+      setIsFormOpen(false);
+      setEditingInventory(null);
+    } catch (error) {
+      console.error("Error saving inventory:", error);
+      throw error;
     }
-    setIsFormOpen(false);
-    setEditingInventory(null);
   };
 
   const handleCancelForm = () => {
@@ -398,21 +311,28 @@ export default function InventoryPage() {
     setEditingInventory(null);
   };
 
-  const handleDeleteInventory = (inventoryItem) => {
-    if (confirm(`Are you sure you want to delete inventory record for "${inventoryItem.product.name}"?`)) {
-      setInventory(prev => prev.filter(i => i.id !== inventoryItem.id));
+  const handleDeleteInventory = async (inventoryItem) => {
+    if (confirm(`Are you sure you want to delete inventory record for "${inventoryItem.product?.name || 'Unknown Product'}"?`)) {
+      try {
+        await deleteInventory(inventoryItem.id);
+        setInventory(prev => prev.filter(i => i.id !== inventoryItem.id));
+      } catch (error) {
+        console.error("Error deleting inventory:", error);
+        alert("Failed to delete inventory");
+      }
     }
   };
 
   const handleViewInventory = (inventoryItem) => {
-    alert(`Inventory Details:\n\nProduct: ${inventoryItem.product.name}\nSKU: ${inventoryItem.product.sku}\nCurrent Stock: ${inventoryItem.currentStock}\nReserved Stock: ${inventoryItem.reservedStock}\nAvailable Stock: ${inventoryItem.availableStock}\nMin Stock: ${inventoryItem.minStock}\nStatus: ${inventoryItem.outOfStock ? 'Out of Stock' : inventoryItem.lowStockThreshold ? 'Low Stock' : 'In Stock'}\nLast Updated: ${new Date(inventoryItem.updatedAt).toLocaleString('id-ID')}`);
+    const product = inventoryItem.product || {};
+    alert(`Inventory Details:\n\nProduct: ${product.name || 'Unknown'}\nSKU: ${product.sku || 'N/A'}\nCurrent Stock: ${inventoryItem.currentStock}\nReserved Stock: ${inventoryItem.reservedStock}\nAvailable Stock: ${inventoryItem.availableStock}\nMin Stock: ${inventoryItem.minStock}\nStatus: ${inventoryItem.outOfStock ? 'Out of Stock' : inventoryItem.lowStockThreshold ? 'Low Stock' : 'In Stock'}\nLast Updated: ${new Date(inventoryItem.updatedAt).toLocaleString('id-ID')}`);
   };
 
   const columns = [
     {
       key: "product",
       title: "Product",
-      render: (value, row) => <ProductInfo product={row.product} />
+      render: (value, row) => <ProductInfo product={row.product || {}} />
     },
     {
       key: "stockLevels",
@@ -464,10 +384,16 @@ export default function InventoryPage() {
           </h1>
           <p className="text-gray-500">Manage product inventory levels and stock availability</p>
         </div>
-        <Button onClick={handleAddInventory}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Inventory
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={loadData} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={handleAddInventory}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Inventory
+          </Button>
+        </div>
       </div>
 
       {/* Data Table */}
@@ -475,7 +401,8 @@ export default function InventoryPage() {
         columns={columns}
         data={inventory}
         searchable={true}
-        emptyMessage="No inventory records found"
+        emptyMessage={isLoading ? "Loading..." : "No inventory records found"}
+        loading={isLoading}
         actions={[
           { label: "View", icon: Eye, onClick: handleViewInventory },
           { label: "Edit", icon: Edit, onClick: handleEditInventory },
@@ -489,6 +416,7 @@ export default function InventoryPage() {
         onSave={handleSaveInventory}
         onCancel={handleCancelForm}
         isOpen={isFormOpen}
+        products={products}
       />
     </div>
   );
